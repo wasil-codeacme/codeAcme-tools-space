@@ -44,14 +44,14 @@ export function SessionRow({ session, showAuthor, canModify, onEdit }: SessionRo
   }
 
   return (
-    <li className="hover:bg-muted/40 flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-sm">
+    <li className="hover:bg-muted/40 @container flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 text-sm">
       <span className="font-figures text-muted-foreground w-28 shrink-0">
         {session.startLabel} – {session.endLabel}
       </span>
       <span className="font-figures bg-accent text-accent-foreground inline-flex h-6 min-w-16 items-center justify-center rounded-md px-2 text-xs font-medium">
         {formatDuration(session.durationMinutes)}
       </span>
-      <span className="min-w-0 flex-1 truncate max-sm:basis-full max-sm:whitespace-normal">
+      <span className="min-w-0 flex-1 truncate @max-xl:basis-full @max-xl:whitespace-normal">
         {session.note ?? <span className="text-muted-foreground">No note</span>}
         <span className="text-muted-foreground ml-2 text-xs">
           {[session.clientName, showAuthor && session.userName].filter(Boolean).join(' · ')}

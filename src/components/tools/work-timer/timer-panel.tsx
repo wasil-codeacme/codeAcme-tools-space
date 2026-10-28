@@ -60,7 +60,7 @@ function ClockFace({ text, dimmed = false }: { text: string; dimmed?: boolean })
   return (
     <p
       className={cn(
-        'font-figures text-6xl leading-none font-medium tracking-tight tabular-nums transition-opacity sm:text-7xl',
+        'font-figures text-6xl leading-none font-medium tracking-tight tabular-nums transition-opacity @md:text-7xl',
         dimmed && 'opacity-60',
       )}
     >
@@ -136,7 +136,7 @@ export function TimerPanel({ userId, clients, legacyRunning }: TimerPanelProps) 
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-3xl border p-6 transition-colors duration-300 sm:p-8',
+        '@container relative overflow-hidden rounded-3xl border p-6 transition-colors duration-300 sm:p-8',
         timer && !paused && 'border-primary/40 bg-primary text-primary-foreground',
         timer && paused && 'border-primary/30 bg-accent text-accent-foreground',
         !timer && 'bg-card',
@@ -148,7 +148,7 @@ export function TimerPanel({ userId, clients, legacyRunning }: TimerPanelProps) 
           className="bg-primary-foreground/10 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl motion-safe:animate-pulse"
         />
       )}
-      <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <div className="relative flex flex-col gap-6 @4xl:flex-row @4xl:items-center @4xl:justify-between">
         <div className="space-y-2">
           <p
             className={cn(
@@ -181,7 +181,7 @@ export function TimerPanel({ userId, clients, legacyRunning }: TimerPanelProps) 
         </div>
 
         {timer ? (
-          <div className="grid w-full grid-cols-2 gap-2 md:w-auto md:min-w-[22rem]">
+          <div className="grid w-full grid-cols-2 gap-2 @4xl:w-auto @4xl:min-w-[22rem]">
             <Button
               size="lg"
               variant={paused ? 'default' : 'secondary'}
@@ -204,10 +204,10 @@ export function TimerPanel({ userId, clients, legacyRunning }: TimerPanelProps) 
             </Button>
           </div>
         ) : (
-          <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-[26rem]">
-            <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex w-full flex-col gap-2 @4xl:w-auto @4xl:min-w-[26rem]">
+            <div className="flex flex-col gap-2 @lg:flex-row">
               <Select value={clientId} onValueChange={setClientId}>
-                <SelectTrigger className="sm:w-48" aria-label="Client">
+                <SelectTrigger className="@lg:w-48" aria-label="Client">
                   <Building2 className="text-muted-foreground" />
                   <SelectValue />
                 </SelectTrigger>
