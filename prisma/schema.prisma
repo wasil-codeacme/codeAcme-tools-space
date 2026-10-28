@@ -1,0 +1,190 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id           String  @id @default(cuid())
+  name         String  @db.VarChar(255)
+  email        String  @unique @db.VarChar(255)
+  passwordHash String  @db.VarChar(255)
+  role         Role    @default(MEMBER)
+  // Bumped on every password change/reset; sessions issued under an older version are rejected,
+  // so a reset revokes every open session immediately.
+  sessionVersion Int     @default(0)
+  isActive       Boolean @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  clientMemberships ClientMember[]
+  timeEntries       TimeEntry[]
+  updatedAccounts   Account[]           @relation("AccountUpdatedBy")
+  accountEvents     AccountAuditEvent[]
+  workSessions      WorkSession[]
+
+  @@index([role])
+}
+
+model Client {
+  id                  String   @id @default(cuid())
+  name                String   @db.VarChar(255)
+  slug                String   @unique @db.VarChar(255)
+  contactName         String?  @db.VarChar(255)
+  // Retainer cap. Null means the client has no monthly limit.
+  monthlyLimitMinutes Int?
+  isArchived          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  members     ClientMember[]
+  categories  TimeCategory[]
+  timeEntries TimeEntry[]
+  accounts    Account[]
+  workSessions WorkSession[]
+
+  @@index([isArchived])
+}
+
+model ClientMember {
+  id        String   @id @default(cuid())
+  clientId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, userId])
+  @@index([userId])
+}
+
+model TimeCategory {
+  id         String   @id @default(cuid())
+  clientId   String
+  name       String   @db.VarChar(255)
+  sortOrder  Int
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  client      Client      @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  timeEntries TimeEntry[]
+
+  @@unique([clientId, name])
+  @@index([clientId])
+}
+
+model TimeEntry {
+  id              String   @id @default(cuid())
+  clientId        String
+  userId          String
+  categoryId      String?
+  workDate        DateTime @db.Date
+  durationMinutes Int
+  task            String   @db.Text
+  requestedBy     String?  @db.VarChar(255)
+  link            String?  @db.VarChar(2048)
+  // Structured version of the "??" marks in the old notes: time the logger is not sure about.
+  needsReview     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  client   Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category TimeCategory? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  workSession WorkSession?
+
+  @@index([clientId, workDate])
+  @@index([userId, workDate])
+  @@index([categoryId])
+}
+
+enum AccountAccessLevel {
+  MASTER
+  ADMIN
+  USER
+}
+
+enum AccountAuditAction {
+  CREATED
+  UPDATED
+  SECRET_CHANGED
+  REVEALED
+  COPIED
+  ARCHIVED
+  RESTORED
+}
+
+model Account {
+  id          String      @id @default(cuid())
+  // Null means a CodeAcme internal account, visible to admins only.
+  clientId    String?
+  name        String      @db.VarChar(255)
+  purpose     String?     @db.VarChar(1000)
+  accessLevel AccountAccessLevel?
+  url         String?     @db.VarChar(2048)
+  username    String?     @db.VarChar(255)
+  twoFactor   String?     @db.VarChar(255)
+  notes       String?     @db.Text
+  // AES-256-GCM ciphertext ("v1.<iv>.<tag>.<data>"); never sent to the browser except on reveal.
+  secretCiphertext      String?   @db.Text
+  secureNotesCiphertext String?   @db.Text
+  secretUpdatedAt       DateTime?
+  isArchived  Boolean     @default(false)
+  updatedById String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  client      Client?             @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  updatedBy   User?               @relation("AccountUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  auditEvents AccountAuditEvent[]
+
+  @@index([clientId])
+  @@index([isArchived])
+}
+
+model AccountAuditEvent {
+  id        String             @id @default(cuid())
+  accountId String
+  userId    String
+  action    AccountAuditAction
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([accountId, createdAt])
+  @@index([createdAt])
+}
+
+model WorkSession {
+  id          String    @id @default(cuid())
+  userId      String
+  clientId    String?
+  note        String?   @db.VarChar(500)
+  startedAt   DateTime
+  // Null while the timer is running; each user has at most one running session.
+  endedAt     DateTime?
+  // Set once the session has been turned into a Time Tracking entry.
+  timeEntryId String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client    Client?    @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  timeEntry TimeEntry? @relation(fields: [timeEntryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, startedAt])
+  @@index([userId, endedAt])
+}
