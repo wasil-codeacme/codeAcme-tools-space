@@ -19,4 +19,4 @@
 | **Account**                    | A login for a tool or service (Circle, Kajabi…) belonging to a client or to CodeAcme internal.                |
 | **Access level**               | Master, Admin or User: how much control that login has in the tool.                                           |
 | **Secret**                     | An account's password or API key, or its secure notes. Stored encrypted; revealing one is audited.            |
-| **Work session**               | One start-to-stop run of the Work Timer. Can be added to the time log as an entry.                            |
+| **Work session**               | One start-to-stop run of the Work Timer, timed in the browser; pauses are not counted. Saved on Stop.         |

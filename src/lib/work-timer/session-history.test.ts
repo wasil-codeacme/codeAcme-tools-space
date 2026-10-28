@@ -16,6 +16,7 @@ function session(startedAt: string, endedAt: string | null): WorkSessionView {
     note: null,
     startedAt,
     endedAt,
+    workedSeconds: null,
     isLogged: false,
   };
 }
@@ -27,7 +28,23 @@ describe('session durations', () => {
   });
 
   it('logs at least one minute to time tracking', () => {
-    expect(billableSessionMinutes('2026-10-28T09:00:00Z', '2026-10-28T09:00:20Z')).toBe(1);
+    expect(
+      billableSessionMinutes({
+        startedAt: '2026-10-28T09:00:00Z',
+        endedAt: '2026-10-28T09:00:20Z',
+        workedSeconds: null,
+      }),
+    ).toBe(1);
+  });
+
+  it('uses the pause-aware worked time when there is one', () => {
+    expect(
+      billableSessionMinutes({
+        startedAt: '2026-10-28T09:00:00Z',
+        endedAt: '2026-10-28T10:00:00Z',
+        workedSeconds: 30 * 60,
+      }),
+    ).toBe(30);
   });
 });
 

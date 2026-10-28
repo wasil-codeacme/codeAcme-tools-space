@@ -13,9 +13,24 @@ export function sessionMinutes(startedAt: string | Date, endedAt: string | Date)
   );
 }
 
+const SECONDS_PER_MINUTE = 60;
+
+interface TimedSession {
+  startedAt: string | Date;
+  endedAt: string | Date;
+  workedSeconds: number | null;
+}
+
+// Worked time excludes pauses; older sessions without it count their full start-to-stop range.
+export function workedMinutes({ startedAt, endedAt, workedSeconds }: TimedSession): number {
+  return workedSeconds === null
+    ? sessionMinutes(startedAt, endedAt)
+    : Math.round(workedSeconds / SECONDS_PER_MINUTE);
+}
+
 // Time Tracking needs at least one minute; a few seconds of work still counts as one.
-export function billableSessionMinutes(startedAt: string | Date, endedAt: string | Date): number {
-  return Math.max(MIN_ENTRY_MINUTES, sessionMinutes(startedAt, endedAt));
+export function billableSessionMinutes(session: TimedSession): number {
+  return Math.max(MIN_ENTRY_MINUTES, workedMinutes(session));
 }
 
 // Dates and clock times are resolved in the viewer's zone, so a session started at 23:30 local time
@@ -32,6 +47,6 @@ export function toHistoryItems(
       dateKey: todayKey(timeZone, new Date(session.startedAt)),
       startLabel: clock.format(new Date(session.startedAt)),
       endLabel: clock.format(new Date(session.endedAt)),
-      durationMinutes: sessionMinutes(session.startedAt, session.endedAt),
+      durationMinutes: workedMinutes(session),
     }));
 }

@@ -3,7 +3,7 @@ import { WORK_TIMER_HISTORY_DAYS } from '@/lib/constants';
 import { logger } from '@/lib/logger';
 import { MESSAGES } from '@/lib/messages';
 import { todayKey } from '@/lib/time-tracking/date-key';
-import { billableSessionMinutes, sessionMinutes } from '@/lib/work-timer/session-history';
+import { billableSessionMinutes } from '@/lib/work-timer/session-history';
 import { NotFoundError, TimerError } from '@/server/errors';
 import {
   assertCanModifyEntry,
@@ -16,7 +16,7 @@ import type { Actor } from '@/types/auth';
 import type { WorkSessionView } from '@/types/work-timer';
 import type {
   SessionIdInput,
-  StartSessionInput,
+  RecordSessionInput,
   UpdateSessionInput,
 } from '@/server/validators/work-timer/work-session.schema';
 
@@ -56,29 +56,38 @@ export function listHistory(
   return workSessionRepository.listFinished(userId, since);
 }
 
-export async function startSession(actor: Actor, { clientId, note }: StartSessionInput, now: Date) {
-  if (await workSessionRepository.findRunning(actor.id)) {
-    throw new TimerError(MESSAGES.TIMER.ALREADY_RUNNING);
+const MILLISECONDS_PER_SECOND = 1000;
+// Rounding between the browser's stopwatch and its start/stop timestamps.
+const WORKED_SECONDS_TOLERANCE = 1;
+
+// Saves a session timed in the browser. A pause-aware worked time must fit inside the start-to-stop
+// range; times come from the user's device, so they are not compared with the server clock.
+export async function recordSession(
+  actor: Actor,
+  { legacySessionId, clientId, note, startedAt, endedAt, workedSeconds }: RecordSessionInput,
+): Promise<WorkSessionView> {
+  const start = new Date(startedAt);
+  const end = new Date(endedAt);
+  const rangeSeconds = (end.getTime() - start.getTime()) / MILLISECONDS_PER_SECOND;
+  if (end <= start || workedSeconds > rangeSeconds + WORKED_SECONDS_TOLERANCE) {
+    throw new TimerError(MESSAGES.TIMER.INVALID_RANGE);
   }
   await assertOptionalClient(actor, clientId);
-  const session = await workSessionRepository.create({
-    userId: actor.id,
-    clientId,
-    note,
-    startedAt: now,
-  });
-  logger.info({ sessionId: session.id, userId: actor.id }, 'Work timer started');
-  return session;
-}
+  const fields = { clientId, note, startedAt: start, endedAt: end, workedSeconds };
 
-export async function stopSession(actor: Actor, now: Date) {
-  const running = await workSessionRepository.findRunning(actor.id);
-  if (!running) {
-    throw new TimerError(MESSAGES.TIMER.NOT_RUNNING);
+  if (legacySessionId) {
+    const legacy = await workSessionRepository.findById(legacySessionId);
+    if (!legacy || legacy.userId !== actor.id || legacy.endedAt !== null) {
+      throw new NotFoundError('Work session');
+    }
+    const session = await workSessionRepository.update(legacySessionId, fields);
+    logger.info({ sessionId: session.id, userId: actor.id }, 'Legacy work session finished');
+    return session;
   }
-  const session = await workSessionRepository.update(running.id, { endedAt: now });
-  logger.info({ sessionId: session.id, userId: actor.id }, 'Work timer stopped');
-  return { session, durationMinutes: sessionMinutes(session.startedAt, now) };
+
+  const session = await workSessionRepository.create({ ...fields, userId: actor.id });
+  logger.info({ sessionId: session.id, userId: actor.id, workedSeconds }, 'Work session recorded');
+  return session;
 }
 
 export async function updateSession(
@@ -133,7 +142,11 @@ export async function logSessionToTimeTracking(
     userId: session.userId,
     categoryId: null,
     dateKey: todayKey(timeZone, session.startedAt),
-    durationMinutes: billableSessionMinutes(session.startedAt, session.endedAt),
+    durationMinutes: billableSessionMinutes({
+      startedAt: session.startedAt,
+      endedAt: session.endedAt,
+      workedSeconds: session.workedSeconds,
+    }),
     task: session.note ?? DEFAULT_SESSION_TASK,
     requestedBy: null,
     link: null,

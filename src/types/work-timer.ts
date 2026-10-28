@@ -9,6 +9,8 @@ export interface WorkSessionView {
   note: string | null;
   startedAt: string;
   endedAt: string | null;
+  // Excludes pauses; null for sessions recorded before pausing existed.
+  workedSeconds: number | null;
   isLogged: boolean;
 }
 

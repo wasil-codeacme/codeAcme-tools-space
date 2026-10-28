@@ -19,7 +19,8 @@ Also on the platform:
   and every reveal is in the admin-only Activity log. "Paste from sheet" imports the existing accounts
   table straight from Google Docs or Sheets. Members only see accounts for their assigned clients;
   "CodeAcme internal" accounts are admin-only.
-- **Work Timer:** press Start when you begin and Stop when you finish. History is grouped by month and
+- **Work Timer:** press Start when you begin, Pause for breaks and Stop when you finish. The timer runs in the
+  browser and is saved only when you press Stop. History is grouped by month and
   week with totals for today, this week and this month. Sessions can be corrected afterwards, and a
   session with a client can be added to the Time Tracking log in one click.
 

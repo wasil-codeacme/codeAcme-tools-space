@@ -6,28 +6,19 @@ import { writeAction } from '@/server/actions/action';
 import * as workSessionService from '@/server/services/work-timer/work-session.service';
 import { getUserTimeZone } from '@/server/time-zone';
 import {
+  recordSessionSchema,
   sessionIdSchema,
-  startSessionSchema,
   updateSessionSchema,
 } from '@/server/validators/work-timer/work-session.schema';
-import { z } from 'zod';
 
 const WORK_TIMER = { tool: ToolId.WORK_TIMER } as const;
 
-export const startWorkSession = writeAction({
+export const recordWorkSession = writeAction({
   ...WORK_TIMER,
-  input: startSessionSchema,
-  fallback: MESSAGES.TIMER.START_ERROR,
-  logMessage: 'Start work timer failed',
-  run: (input, actor) => workSessionService.startSession(actor, input, new Date()),
-});
-
-export const stopWorkSession = writeAction({
-  ...WORK_TIMER,
-  input: z.object({}),
+  input: recordSessionSchema,
   fallback: MESSAGES.TIMER.STOP_ERROR,
-  logMessage: 'Stop work timer failed',
-  run: (_input, actor) => workSessionService.stopSession(actor, new Date()),
+  logMessage: 'Record work session failed',
+  run: (input, actor) => workSessionService.recordSession(actor, input),
 });
 
 export const updateWorkSession = writeAction({

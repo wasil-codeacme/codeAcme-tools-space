@@ -44,11 +44,15 @@ test('an internal account keeps its password hidden until revealed, and the reve
   ).toBeVisible();
 });
 
-test('the work timer starts, stops and lands in the history', async () => {
+test('the work timer starts, pauses, survives a reload and lands in the history', async () => {
   await page.goto('/tools/work-timer');
   const note = `E2E session ${RUN_ID}`;
   await page.getByLabel('Note').fill(note);
   await page.getByRole('button', { name: 'Start working' }).click();
+  await page.getByRole('button', { name: 'Pause' }).click();
+  await expect(page.getByText('Paused')).toBeVisible();
+  await page.reload();
+  await page.getByRole('button', { name: 'Resume' }).click();
   await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible();
   await page.getByRole('button', { name: 'Stop' }).click();
   await expect(page.getByText(note)).toBeVisible();

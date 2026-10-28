@@ -176,6 +176,9 @@ model WorkSession {
   startedAt   DateTime
   // Null while the timer is running; each user has at most one running session.
   endedAt     DateTime?
+  // Time actually worked, excluding pauses. Null for sessions recorded before pausing existed,
+  // where the worked time is simply endedAt - startedAt.
+  workedSeconds Int?
   // Set once the session has been turned into a Time Tracking entry.
   timeEntryId String?   @unique
   createdAt   DateTime  @default(now())

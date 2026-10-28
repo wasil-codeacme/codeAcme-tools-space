@@ -13,6 +13,7 @@ interface SessionRow {
   note: string | null;
   startedAt: Date;
   endedAt: Date | null;
+  workedSeconds: number | null;
   timeEntryId: string | null;
   user: { name: string };
   client: { name: string } | null;
@@ -28,6 +29,7 @@ function toView(row: SessionRow): WorkSessionView {
     note: row.note,
     startedAt: row.startedAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,
+    workedSeconds: row.workedSeconds,
     isLogged: row.timeEntryId !== null,
   };
 }
@@ -59,6 +61,8 @@ export const workSessionRepository = {
     clientId: string | null;
     note: string | null;
     startedAt: Date;
+    endedAt: Date;
+    workedSeconds: number;
   }) {
     return toView(await prisma.workSession.create({ data, include: VIEW_INCLUDE }));
   },
@@ -70,6 +74,7 @@ export const workSessionRepository = {
       note: string | null;
       startedAt: Date;
       endedAt: Date;
+      workedSeconds: number | null;
       timeEntryId: string;
     }>,
   ): Promise<WorkSessionView> {

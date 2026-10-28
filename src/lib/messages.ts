@@ -76,12 +76,8 @@ export const MESSAGES = {
     IMPORT_EMPTY: 'There is nothing to import yet.',
   },
   TIMER: {
-    STARTED: 'Timer started.',
     STOPPED: (duration: string) => `Stopped. You worked ${duration}.`,
-    START_ERROR: 'Could not start the timer.',
     STOP_ERROR: 'Could not stop the timer.',
-    ALREADY_RUNNING: 'A timer is already running. Stop it first.',
-    NOT_RUNNING: 'No timer is running.',
     UPDATE_SUCCESS: 'Session updated.',
     UPDATE_ERROR: 'Could not update the session.',
     DELETE_SUCCESS: 'Session deleted.',

@@ -44,7 +44,7 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
 
   return (
     <div className="space-y-6">
-      <TimerPanel running={running} clients={clientOptions} serverNowMs={now.getTime()} />
+      <TimerPanel userId={actor.id} clients={clientOptions} legacyRunning={running} />
       <SessionHistory
         items={toHistoryItems(sessions, timeZone)}
         todayKey={today}
