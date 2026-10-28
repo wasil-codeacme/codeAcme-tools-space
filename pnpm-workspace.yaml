@@ -1,4 +1,14 @@
+# pnpm 11 fails the install when a dependency's build script is not explicitly approved.
+# embedded-postgres (local dev/test database) ships one package per platform, each with a postinstall,
+# so every platform is listed: Vercel builds on Linux, the team develops on Windows and macOS.
 allowBuilds:
+  '@embedded-postgres/darwin-arm64': true
+  '@embedded-postgres/darwin-x64': true
+  '@embedded-postgres/linux-arm': true
+  '@embedded-postgres/linux-arm64': true
+  '@embedded-postgres/linux-ia32': true
+  '@embedded-postgres/linux-ppc64': true
+  '@embedded-postgres/linux-x64': true
   '@embedded-postgres/windows-x64': true
   '@prisma/engines': true
   esbuild: true
