@@ -30,5 +30,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|brand/).*)'],
+  // Icons and link-preview images must load for crawlers and signed-out visitors.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|icon|apple-icon|opengraph-image|twitter-image|brand/).*)',
+  ],
 };
