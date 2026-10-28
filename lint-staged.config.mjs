@@ -11,10 +11,12 @@ function perFileOr(projectCommand, fileCommand) {
     files.length > MAX_LISTED_FILES ? projectCommand : `${fileCommand} ${quote(files)}`;
 }
 
-export default {
+const config = {
   '*.{ts,tsx}': [
     perFileOr('eslint --fix .', 'eslint --fix'),
     perFileOr('prettier --write .', 'prettier --write'),
   ],
   '*.{json,md,css,mjs,cjs,js}': [perFileOr('prettier --write .', 'prettier --write')],
 };
+
+export default config;
