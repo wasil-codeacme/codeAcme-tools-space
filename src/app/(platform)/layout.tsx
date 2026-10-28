@@ -1,5 +1,6 @@
 import { type ReactNode, Suspense } from 'react';
 import { AppSidebar, AppSidebarSkeleton } from '@/components/platform/app-sidebar';
+import { PendingNavigationProvider } from '@/components/platform/pending-navigation';
 import { PlatformHeader } from '@/components/platform/platform-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { requireUser } from '@/server/auth/guards';
@@ -17,7 +18,9 @@ export default function PlatformLayout({ children }: { children: ReactNode }) {
       </Suspense>
       <SidebarInset className="bg-ledger min-w-0">
         <PlatformHeader />
-        <div className="mx-auto w-full max-w-6xl flex-1 px-4 pt-2 pb-16 md:px-8">{children}</div>
+        <div className="mx-auto w-full max-w-6xl flex-1 px-4 pt-2 pb-16 md:px-8">
+          <PendingNavigationProvider>{children}</PendingNavigationProvider>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

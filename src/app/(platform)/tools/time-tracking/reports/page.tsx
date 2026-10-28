@@ -1,9 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { ListPageSkeleton } from '@/components/platform/skeletons';
+import { PendingSection } from '@/components/platform/pending-navigation';
 import { NoClientsState } from '@/components/tools/time-tracking/no-clients-state';
 import { ReportFilters } from '@/components/tools/time-tracking/reports/report-filters';
 import { ReportPreview } from '@/components/tools/time-tracking/reports/report-preview';
+import {
+  ControlsSkeleton,
+  ReportPreviewSkeleton,
+} from '@/components/tools/time-tracking/skeletons';
 import { ROUTES } from '@/lib/routes';
 import { ReportPeriod } from '@/lib/time-tracking/report-period';
 import { requireAdmin } from '@/server/auth/guards';
@@ -61,14 +65,23 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
         pdfHref={exportHref(query, ReportFormat.PDF)}
         csvHref={exportHref(query, ReportFormat.CSV)}
       />
-      <ReportPreview report={report} branded={query.branding === ReportBranding.CODEACME} />
+      <PendingSection fallback={<ReportPreviewSkeleton />}>
+        <ReportPreview report={report} branded={query.branding === ReportBranding.CODEACME} />
+      </PendingSection>
     </div>
   );
 }
 
 export default function ReportsPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<ListPageSkeleton />}>
+    <Suspense
+      fallback={
+        <div className="space-y-5">
+          <ControlsSkeleton />
+          <ReportPreviewSkeleton />
+        </div>
+      }
+    >
       <ReportsContent searchParams={searchParams} />
     </Suspense>
   );

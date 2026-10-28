@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePendingNavigation } from '@/components/platform/pending-navigation';
 
 type ParamUpdates = Record<string, string | null>;
 
@@ -10,6 +11,7 @@ export function useSearchParamNavigation() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { startTransition } = usePendingNavigation();
 
   function hrefWith(updates: ParamUpdates): string {
     const params = new URLSearchParams(searchParams.toString());
@@ -26,7 +28,8 @@ export function useSearchParamNavigation() {
 
   return {
     hrefWith,
-    navigate: (updates: ParamUpdates) => router.push(hrefWith(updates), { scroll: false }),
+    navigate: (updates: ParamUpdates) =>
+      startTransition(() => router.push(hrefWith(updates), { scroll: false })),
     replaceQuietly: (updates: ParamUpdates) =>
       window.history.replaceState(null, '', hrefWith(updates)),
   };

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { ListPageSkeleton } from '@/components/platform/skeletons';
+import {
+  AccountListSkeleton,
+  AccountsToolbarSkeleton,
+} from '@/components/tools/accounts/skeletons';
 import { AccountsWorkspace } from '@/components/tools/accounts/accounts-workspace';
 import { ToolId } from '@/config/tools';
 import { Role } from '@/generated/prisma/enums';
@@ -41,7 +44,14 @@ async function AccountsContent({ searchParams }: { searchParams: SearchParams })
 
 export default function AccountsPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<ListPageSkeleton />}>
+    <Suspense
+      fallback={
+        <div className="space-y-5">
+          <AccountsToolbarSkeleton />
+          <AccountListSkeleton />
+        </div>
+      }
+    >
       <AccountsContent searchParams={searchParams} />
     </Suspense>
   );

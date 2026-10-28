@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { History, UsersRound } from 'lucide-react';
 import { EditSessionDialog } from '@/components/tools/work-timer/edit-session-dialog';
 import { SessionRow } from '@/components/tools/work-timer/session-row';
+import { SessionHistorySkeleton } from '@/components/tools/work-timer/skeletons';
+import { PendingSection } from '@/components/platform/pending-navigation';
 import {
   Select,
   SelectContent,
@@ -99,55 +101,58 @@ export function SessionHistory(props: SessionHistoryProps) {
         )}
       </div>
 
-      {items.length === 0 ? (
-        <p className="bg-card/60 text-muted-foreground rounded-2xl border border-dashed p-10 text-center text-sm">
-          Finished sessions from the last two months show up here.
-        </p>
-      ) : (
-        groupBySheetWeek(items)
-          .reverse()
-          .map((month) => (
-            <div key={month.monthLabel} className="space-y-3">
-              <div className="bg-accent text-accent-foreground flex items-baseline justify-between rounded-xl px-4 py-2.5">
-                <span className="font-heading font-semibold">{month.monthLabel}</span>
-                <span className="font-figures text-sm font-semibold">
-                  {formatDuration(month.totalMinutes)} · {formatDecimalHours(month.totalMinutes)} h
-                </span>
-              </div>
-              {[...month.weeks].reverse().map((week) => (
-                <div key={week.index} className="bg-card overflow-hidden rounded-2xl border">
-                  <p className="text-primary flex items-baseline justify-between border-b px-4 py-2 text-xs font-semibold tracking-wide uppercase">
-                    <span>
-                      Week {week.index} · {week.rangeLabel}
-                    </span>
-                    <span className="font-figures normal-case">
-                      {formatDuration(week.totalMinutes)}
-                    </span>
-                  </p>
-                  {[...week.days].reverse().map((day) => (
-                    <div key={day.dateKey} className="border-b last:border-b-0">
-                      <p className="text-muted-foreground flex justify-between px-4 pt-2.5 pb-1 text-xs font-medium">
-                        <span>{formatDateKey(day.dateKey, 'EEEE d MMMM')}</span>
-                        <span className="font-figures">{formatDuration(day.totalMinutes)}</span>
-                      </p>
-                      <ul>
-                        {day.items.map((item) => (
-                          <SessionRow
-                            key={item.id}
-                            session={item}
-                            showAuthor={showAuthor}
-                            canModify={isAdmin || item.userId === props.currentUserId}
-                            onEdit={() => setEditing(item)}
-                          />
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
+      <PendingSection fallback={<SessionHistorySkeleton />}>
+        {items.length === 0 ? (
+          <p className="bg-card/60 text-muted-foreground rounded-2xl border border-dashed p-10 text-center text-sm">
+            Finished sessions from the last two months show up here.
+          </p>
+        ) : (
+          groupBySheetWeek(items)
+            .reverse()
+            .map((month) => (
+              <div key={month.monthLabel} className="space-y-3">
+                <div className="bg-accent text-accent-foreground flex items-baseline justify-between rounded-xl px-4 py-2.5">
+                  <span className="font-heading font-semibold">{month.monthLabel}</span>
+                  <span className="font-figures text-sm font-semibold">
+                    {formatDuration(month.totalMinutes)} · {formatDecimalHours(month.totalMinutes)}{' '}
+                    h
+                  </span>
                 </div>
-              ))}
-            </div>
-          ))
-      )}
+                {[...month.weeks].reverse().map((week) => (
+                  <div key={week.index} className="bg-card overflow-hidden rounded-2xl border">
+                    <p className="text-primary flex items-baseline justify-between border-b px-4 py-2 text-xs font-semibold tracking-wide uppercase">
+                      <span>
+                        Week {week.index} · {week.rangeLabel}
+                      </span>
+                      <span className="font-figures normal-case">
+                        {formatDuration(week.totalMinutes)}
+                      </span>
+                    </p>
+                    {[...week.days].reverse().map((day) => (
+                      <div key={day.dateKey} className="border-b last:border-b-0">
+                        <p className="text-muted-foreground flex justify-between px-4 pt-2.5 pb-1 text-xs font-medium">
+                          <span>{formatDateKey(day.dateKey, 'EEEE d MMMM')}</span>
+                          <span className="font-figures">{formatDuration(day.totalMinutes)}</span>
+                        </p>
+                        <ul>
+                          {day.items.map((item) => (
+                            <SessionRow
+                              key={item.id}
+                              session={item}
+                              showAuthor={showAuthor}
+                              canModify={isAdmin || item.userId === props.currentUserId}
+                              onEdit={() => setEditing(item)}
+                            />
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            ))
+        )}
+      </PendingSection>
 
       {editing && (
         <EditSessionDialog

@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { ListPageSkeleton } from '@/components/platform/skeletons';
+import { PendingSection } from '@/components/platform/pending-navigation';
 import { NoClientsState } from '@/components/tools/time-tracking/no-clients-state';
 import { OverviewControls } from '@/components/tools/time-tracking/overview/overview-controls';
 import { YearOverviewGrid } from '@/components/tools/time-tracking/overview/year-overview-grid';
+import { ControlsSkeleton, OverviewGridSkeleton } from '@/components/tools/time-tracking/skeletons';
 import { ToolId } from '@/config/tools';
 import { Role } from '@/generated/prisma/enums';
 import { requireToolAccess } from '@/server/auth/guards';
@@ -45,20 +46,29 @@ async function OverviewContent({ searchParams }: { searchParams: SearchParams })
         clientId={client.id}
         year={year}
       />
-      <YearOverviewGrid
-        overview={overview}
-        clientId={client.id}
-        clientName={client.name}
-        hasLimit={client.monthlyLimitMinutes !== null}
-        currentMonthKey={`${today.slice(0, 7)}-01`}
-      />
+      <PendingSection fallback={<OverviewGridSkeleton />}>
+        <YearOverviewGrid
+          overview={overview}
+          clientId={client.id}
+          clientName={client.name}
+          hasLimit={client.monthlyLimitMinutes !== null}
+          currentMonthKey={`${today.slice(0, 7)}-01`}
+        />
+      </PendingSection>
     </div>
   );
 }
 
 export default function OverviewPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<ListPageSkeleton />}>
+    <Suspense
+      fallback={
+        <div className="space-y-5">
+          <ControlsSkeleton />
+          <OverviewGridSkeleton />
+        </div>
+      }
+    >
       <OverviewContent searchParams={searchParams} />
     </Suspense>
   );

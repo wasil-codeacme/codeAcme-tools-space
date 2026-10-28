@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { PendingSection } from '@/components/platform/pending-navigation';
 import { DayPanel } from '@/components/tools/time-tracking/log/day-panel';
 import { LogToolbar } from '@/components/tools/time-tracking/log/log-toolbar';
 import { PasteNotesDialog } from '@/components/tools/time-tracking/log/paste-notes-dialog';
@@ -8,6 +9,11 @@ import { ShortcutsCard } from '@/components/tools/time-tracking/log/shortcuts-ca
 import { WeekHeader } from '@/components/tools/time-tracking/log/week-header';
 import { WeekStrip } from '@/components/tools/time-tracking/log/week-strip';
 import { MonthUsageMeter } from '@/components/tools/time-tracking/month-usage-meter';
+import {
+  DayPanelSkeleton,
+  UsageMeterSkeleton,
+  WeekStripSkeleton,
+} from '@/components/tools/time-tracking/skeletons';
 import { useEntryMutations } from '@/hooks/use-entry-mutations';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useSearchParamNavigation } from '@/hooks/use-search-param-navigation';
@@ -103,34 +109,40 @@ export function LogWorkspace(props: LogWorkspaceProps) {
           onNext={() => goToDate(addDaysToKey(selectedDate, DAYS_PER_WEEK))}
           onToday={() => goToDate(todayKey)}
         />
-        <WeekStrip
-          days={days}
-          minutesByDay={totals}
-          selectedKey={selectedDate}
-          todayKey={todayKey}
-          onSelect={goToDate}
-        />
+        <PendingSection fallback={<WeekStripSkeleton />}>
+          <WeekStrip
+            days={days}
+            minutesByDay={totals}
+            selectedKey={selectedDate}
+            todayKey={todayKey}
+            onSelect={goToDate}
+          />
+        </PendingSection>
       </section>
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_290px]">
-        <DayPanel
-          key={selectedDate}
-          entries={mutations.entries.filter((entry) => entry.dateKey === selectedDate)}
-          context={{
-            clientId: client.id,
-            dateKey: selectedDate,
-            author: currentUser,
-            categories: props.categories,
-          }}
-          categories={props.categories}
-          canModify={(entry) => isAdmin || entry.userId === currentUser.id}
-          showAuthor={hasSeveralAuthors}
-          durationInputRef={durationInputRef}
-          onCreate={mutations.create}
-          onUpdate={mutations.update}
-          onDelete={mutations.remove}
-        />
+        <PendingSection fallback={<DayPanelSkeleton />}>
+          <DayPanel
+            key={selectedDate}
+            entries={mutations.entries.filter((entry) => entry.dateKey === selectedDate)}
+            context={{
+              clientId: client.id,
+              dateKey: selectedDate,
+              author: currentUser,
+              categories: props.categories,
+            }}
+            categories={props.categories}
+            canModify={(entry) => isAdmin || entry.userId === currentUser.id}
+            showAuthor={hasSeveralAuthors}
+            durationInputRef={durationInputRef}
+            onCreate={mutations.create}
+            onUpdate={mutations.update}
+            onDelete={mutations.remove}
+          />
+        </PendingSection>
         <aside className="space-y-4">
-          <MonthUsageMeter usage={view.monthUsage} />
+          <PendingSection fallback={<UsageMeterSkeleton />}>
+            <MonthUsageMeter usage={view.monthUsage} />
+          </PendingSection>
           <ShortcutsCard />
         </aside>
       </div>

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { ListPageSkeleton } from '@/components/platform/skeletons';
+import {
+  SessionHistorySkeleton,
+  TimerPanelSkeleton,
+} from '@/components/tools/work-timer/skeletons';
 import { SessionHistory } from '@/components/tools/work-timer/session-history';
 import { TimerPanel } from '@/components/tools/work-timer/timer-panel';
 import { ToolId } from '@/config/tools';
@@ -57,7 +60,14 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
 
 export default function WorkTimerPage({ searchParams }: { searchParams: SearchParams }) {
   return (
-    <Suspense fallback={<ListPageSkeleton />}>
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <TimerPanelSkeleton />
+          <SessionHistorySkeleton />
+        </div>
+      }
+    >
       <WorkTimerContent searchParams={searchParams} />
     </Suspense>
   );

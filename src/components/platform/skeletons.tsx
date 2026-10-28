@@ -38,3 +38,13 @@ export function ListPageSkeleton() {
     </>
   );
 }
+
+export function RowListSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: LIST_SKELETON_ROWS }, (_, index) => (
+        <Skeleton key={index} className="h-14 rounded-xl" />
+      ))}
+    </div>
+  );
+}

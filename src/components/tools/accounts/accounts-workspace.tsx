@@ -6,6 +6,8 @@ import { AccountFormDialog } from '@/components/tools/accounts/account-form-dial
 import { AccountRow } from '@/components/tools/accounts/account-row';
 import { AccountsToolbar } from '@/components/tools/accounts/accounts-toolbar';
 import { ImportAccountsDialog } from '@/components/tools/accounts/import-accounts-dialog';
+import { AccountListSkeleton } from '@/components/tools/accounts/skeletons';
+import { PendingSection } from '@/components/platform/pending-navigation';
 import {
   Empty,
   EmptyDescription,
@@ -84,40 +86,44 @@ export function AccountsWorkspace(props: AccountsWorkspaceProps) {
         onImport={() => setDialog({ kind: 'import' })}
       />
 
-      {visible.length === 0 ? (
-        <Empty className="bg-card/60 rounded-2xl border border-dashed py-16">
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <KeyRound />
-            </EmptyMedia>
-            <EmptyTitle>{accounts.length === 0 ? 'No accounts yet' : 'Nothing matches'}</EmptyTitle>
-            <EmptyDescription>
-              {accounts.length === 0
-                ? 'Add an account, or paste your existing accounts sheet to bring everything in at once.'
-                : 'Try a different client or search term.'}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      ) : (
-        groupByOwner(visible).map(([owner, ownerAccounts]) => (
-          <section key={owner} className="space-y-2">
-            <h2 className="text-muted-foreground flex items-baseline gap-2 px-1 text-xs font-semibold tracking-wider uppercase">
-              {owner}
-              <span className="font-figures font-normal">{ownerAccounts.length}</span>
-            </h2>
-            <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
-              {ownerAccounts.map((account) => (
-                <AccountRow
-                  key={account.id}
-                  account={account}
-                  isAdmin={isAdmin}
-                  onEdit={() => setDialog({ kind: 'edit', account })}
-                />
-              ))}
-            </ul>
-          </section>
-        ))
-      )}
+      <PendingSection fallback={<AccountListSkeleton />}>
+        {visible.length === 0 ? (
+          <Empty className="bg-card/60 rounded-2xl border border-dashed py-16">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <KeyRound />
+              </EmptyMedia>
+              <EmptyTitle>
+                {accounts.length === 0 ? 'No accounts yet' : 'Nothing matches'}
+              </EmptyTitle>
+              <EmptyDescription>
+                {accounts.length === 0
+                  ? 'Add an account, or paste your existing accounts sheet to bring everything in at once.'
+                  : 'Try a different client or search term.'}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        ) : (
+          groupByOwner(visible).map(([owner, ownerAccounts]) => (
+            <section key={owner} className="space-y-2">
+              <h2 className="text-muted-foreground flex items-baseline gap-2 px-1 text-xs font-semibold tracking-wider uppercase">
+                {owner}
+                <span className="font-figures font-normal">{ownerAccounts.length}</span>
+              </h2>
+              <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
+                {ownerAccounts.map((account) => (
+                  <AccountRow
+                    key={account.id}
+                    account={account}
+                    isAdmin={isAdmin}
+                    onEdit={() => setDialog({ kind: 'edit', account })}
+                  />
+                ))}
+              </ul>
+            </section>
+          ))
+        )}
+      </PendingSection>
 
       {(dialog?.kind === 'create' || dialog?.kind === 'edit') && (
         <AccountFormDialog
