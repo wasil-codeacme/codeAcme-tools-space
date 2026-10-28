@@ -33,9 +33,10 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
   const rawMember = Array.isArray(params.member) ? params.member[0] : params.member;
   const memberId = rawMember === EVERYONE ? null : rawMember;
 
+  const now = new Date();
   const [running, sessions, clients, members] = await Promise.all([
     getRunningSession(actor),
-    listHistory(actor, { memberId, now: new Date() }),
+    listHistory(actor, { memberId, now }),
     listAccessibleClients(actor),
     isAdmin ? listActiveUsers() : Promise.resolve([]),
   ]);
@@ -43,7 +44,7 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
 
   return (
     <div className="space-y-6">
-      <TimerPanel running={running} clients={clientOptions} />
+      <TimerPanel running={running} clients={clientOptions} serverNowMs={now.getTime()} />
       <SessionHistory
         items={toHistoryItems(sessions, timeZone)}
         todayKey={today}

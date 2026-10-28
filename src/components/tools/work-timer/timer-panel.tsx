@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Building2, Loader2, Play, Square, TriangleAlert } from 'lucide-react';
+import { Building2, Play, Square, TriangleAlert } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useNowSeconds } from '@/hooks/use-now';
+import { useNowMs } from '@/hooks/use-now';
 import { reportActionError } from '@/lib/action-feedback';
 import { LONG_SESSION_WARNING_MINUTES } from '@/lib/constants';
 import { MESSAGES } from '@/lib/messages';
@@ -32,28 +32,89 @@ const SECONDS_PER_MINUTE = 60;
 interface TimerPanelProps {
   running: WorkSessionView | null;
   clients: { id: string; name: string }[];
+  // Server clock when the page rendered; lets the clock measure elapsed time without trusting
+  // that the device clock agrees with the server.
+  serverNowMs: number;
 }
 
-export function TimerPanel({ running, clients }: TimerPanelProps) {
+// The elapsed time when the anchor was taken, and the device time at that moment. Elapsed is then
+// "anchor elapsed + device time since the anchor", so a device clock that is minutes off never
+// freezes or skews the display.
+interface ClockAnchor {
+  elapsedMs: number;
+  deviceMs: number;
+}
+
+interface LocalRun {
+  anchor: ClockAnchor;
+  label: string;
+}
+
+function ElapsedClock({ anchor }: { anchor: ClockAnchor }) {
+  const nowMs = useNowMs();
+  if (nowMs === null) {
+    return <ClockFace text="--:--:--" />;
+  }
+  const elapsedSeconds = Math.floor(
+    (anchor.elapsedMs + nowMs - anchor.deviceMs) / MILLISECONDS_PER_SECOND,
+  );
+  return (
+    <>
+      <ClockFace text={formatElapsed(elapsedSeconds)} />
+      {elapsedSeconds / SECONDS_PER_MINUTE >= LONG_SESSION_WARNING_MINUTES && (
+        <p className="bg-primary-foreground/15 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs">
+          <TriangleAlert className="size-3.5" />
+          Still working? This has been running for over 10 hours.
+        </p>
+      )}
+    </>
+  );
+}
+
+// Anchors a session loaded from the server: its elapsed time per the server clock at render,
+// paired with the device time when this component first rendered.
+function ServerSessionClock({ serverElapsedMs }: { serverElapsedMs: number }) {
+  const [deviceMs] = useState(() => Date.now());
+  return <ElapsedClock anchor={{ elapsedMs: serverElapsedMs, deviceMs }} />;
+}
+
+function ClockFace({ text }: { text: string }) {
+  return (
+    <p className="font-figures text-6xl leading-none font-medium tracking-tight tabular-nums sm:text-7xl">
+      {text}
+    </p>
+  );
+}
+
+export function TimerPanel({ running, clients, serverNowMs }: TimerPanelProps) {
   const [clientId, setClientId] = useState(
     clients.length === 1 ? (clients[0]?.id ?? NO_CLIENT) : NO_CLIENT,
   );
   const [note, setNote] = useState('');
-  const [isPending, startTransition] = useTransition();
-  const nowSeconds = useNowSeconds();
-  const elapsedSeconds =
-    running && nowSeconds !== null
-      ? nowSeconds - Math.floor(new Date(running.startedAt).getTime() / MILLISECONDS_PER_SECOND)
-      : 0;
-  const isLong = elapsedSeconds / SECONDS_PER_MINUTE >= LONG_SESSION_WARNING_MINUTES;
+  // Start and Stop update the screen immediately; the server catches up in the background.
+  const [localRun, setLocalRun] = useState<LocalRun | null>(null);
+  const [stoppedLocally, setStoppedLocally] = useState(false);
+  const [, startTransition] = useTransition();
+
+  const isRunning = !stoppedLocally && (localRun !== null || running !== null);
+  const runningLabel =
+    localRun?.label ??
+    [running?.clientName ?? 'No client', running?.note].filter(Boolean).join(' · ');
 
   function start() {
+    const clientName = clients.find((client) => client.id === clientId)?.name ?? 'No client';
+    setStoppedLocally(false);
+    setLocalRun({
+      anchor: { elapsedMs: 0, deviceMs: Date.now() },
+      label: [clientName, note.trim()].filter(Boolean).join(' · '),
+    });
     startTransition(async () => {
       const result = await startWorkSession({
         clientId: clientId === NO_CLIENT ? null : clientId,
         note,
       });
       if (result.error !== undefined) {
+        setLocalRun(null);
         reportActionError(result.error);
         return;
       }
@@ -63,9 +124,12 @@ export function TimerPanel({ running, clients }: TimerPanelProps) {
   }
 
   function stop() {
+    setStoppedLocally(true);
+    setLocalRun(null);
     startTransition(async () => {
       const result = await stopWorkSession({});
       if (result.error !== undefined) {
+        setStoppedLocally(false);
         reportActionError(result.error);
         return;
       }
@@ -73,14 +137,29 @@ export function TimerPanel({ running, clients }: TimerPanelProps) {
     });
   }
 
+  function clock() {
+    if (localRun) {
+      return <ElapsedClock anchor={localRun.anchor} />;
+    }
+    if (running) {
+      return (
+        <ServerSessionClock
+          key={`${running.id}:${serverNowMs}`}
+          serverElapsedMs={serverNowMs - new Date(running.startedAt).getTime()}
+        />
+      );
+    }
+    return <ClockFace text="00:00:00" />;
+  }
+
   return (
     <section
       className={cn(
-        'relative overflow-hidden rounded-3xl border p-6 transition-colors duration-500 sm:p-8',
-        running ? 'border-primary/40 bg-primary text-primary-foreground' : 'bg-card',
+        'relative overflow-hidden rounded-3xl border p-6 transition-colors duration-300 sm:p-8',
+        isRunning ? 'border-primary/40 bg-primary text-primary-foreground' : 'bg-card',
       )}
     >
-      {running && (
+      {isRunning && (
         <span
           aria-hidden
           className="bg-primary-foreground/10 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl motion-safe:animate-pulse"
@@ -91,40 +170,23 @@ export function TimerPanel({ running, clients }: TimerPanelProps) {
           <p
             className={cn(
               'font-figures text-xs tracking-[0.2em] uppercase',
-              running ? 'text-primary-foreground/70' : 'text-muted-foreground',
+              isRunning ? 'text-primary-foreground/70' : 'text-muted-foreground',
             )}
           >
-            {running ? 'Working' : 'Ready when you are'}
+            {isRunning ? 'Working' : 'Ready when you are'}
           </p>
-          <p className="font-figures text-6xl leading-none font-medium tracking-tight tabular-nums sm:text-7xl">
-            {running
-              ? nowSeconds === null
-                ? '--:--:--'
-                : formatElapsed(elapsedSeconds)
-              : '00:00:00'}
-          </p>
-          {running && (
-            <p className="text-primary-foreground/80 text-sm">
-              {[running.clientName ?? 'No client', running.note].filter(Boolean).join(' · ')}
-            </p>
-          )}
-          {running && isLong && (
-            <p className="bg-primary-foreground/15 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs">
-              <TriangleAlert className="size-3.5" />
-              Still working? This has been running for over 10 hours.
-            </p>
-          )}
+          {isRunning ? clock() : <ClockFace text="00:00:00" />}
+          {isRunning && <p className="text-primary-foreground/80 text-sm">{runningLabel}</p>}
         </div>
 
-        {running ? (
+        {isRunning ? (
           <Button
             size="lg"
             variant="secondary"
             onClick={stop}
-            disabled={isPending}
             className="h-16 min-w-44 rounded-2xl text-base font-semibold"
           >
-            {isPending ? <Loader2 className="animate-spin" /> : <Square className="fill-current" />}
+            <Square className="fill-current" />
             Stop
           </Button>
         ) : (
@@ -153,13 +215,8 @@ export function TimerPanel({ running, clients }: TimerPanelProps) {
                 className="flex-1"
               />
             </div>
-            <Button
-              size="lg"
-              onClick={start}
-              disabled={isPending}
-              className="h-16 rounded-2xl text-base font-semibold"
-            >
-              {isPending ? <Loader2 className="animate-spin" /> : <Play className="fill-current" />}
+            <Button size="lg" onClick={start} className="h-16 rounded-2xl text-base font-semibold">
+              <Play className="fill-current" />
               Start working
             </Button>
           </div>
