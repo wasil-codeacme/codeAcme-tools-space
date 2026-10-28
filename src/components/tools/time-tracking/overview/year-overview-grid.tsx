@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { UsageStatusBadge } from '@/components/tools/time-tracking/usage-status-badge';
 import { MAX_WEEKS_IN_MONTH } from '@/lib/constants';
 import { ROUTES } from '@/lib/routes';
+import { formatDateKey } from '@/lib/time-tracking/date-key';
 import { formatDecimalHours, formatDuration } from '@/lib/time-tracking/duration';
 import { cn } from '@/lib/utils';
 import type { OverviewMonthRow, OverviewWeekCell, YearOverview } from '@/types/time-tracking';
@@ -25,33 +26,44 @@ function heatOpacity(minutes: number, busiest: number): number {
   return HEAT_STEPS[step] ?? 0;
 }
 
-function WeekCell({
-  week,
-  clientId,
-  busiest,
-}: {
+interface WeekLinkProps {
   week: OverviewWeekCell;
   clientId: string;
   busiest: number;
-}) {
+}
+
+function WeekLink({ week, clientId, busiest }: WeekLinkProps) {
   const opacity = heatOpacity(week.minutes, busiest);
   return (
-    <td className="p-1">
-      <Link
-        href={`${ROUTES.TOOLS.TIME_TRACKING.ROOT}?client=${clientId}&date=${week.startKey}`}
-        title={`${week.rangeLabel}: ${formatDuration(week.minutes)}`}
-        style={{
-          backgroundColor: `color-mix(in oklch, var(--primary) ${opacity * 100}%, transparent)`,
-        }}
-        className="hover:ring-primary/40 focus-visible:ring-ring/50 flex flex-col items-end rounded-lg px-2.5 py-1.5 transition-shadow outline-none hover:ring-2 focus-visible:ring-3"
+    <Link
+      href={`${ROUTES.TOOLS.TIME_TRACKING.ROOT}?client=${clientId}&date=${week.startKey}`}
+      title={`${week.rangeLabel}: ${formatDuration(week.minutes)}`}
+      style={
+        opacity > 0
+          ? {
+              backgroundColor: `color-mix(in oklch, var(--primary) ${opacity * 100}%, transparent)`,
+            }
+          : undefined
+      }
+      className="hover:ring-primary/40 focus-visible:ring-ring/50 max-md:bg-muted/40 flex w-full flex-col items-end rounded-lg px-2.5 py-1.5 transition-shadow outline-none hover:ring-2 focus-visible:ring-3 max-md:items-start"
+    >
+      <span
+        className={cn('font-figures text-sm', week.minutes === 0 && 'text-muted-foreground/50')}
       >
-        <span
-          className={cn('font-figures text-sm', week.minutes === 0 && 'text-muted-foreground/50')}
-        >
-          {formatDecimalHours(week.minutes)}
-        </span>
-        <span className="text-muted-foreground text-[0.65rem]">{week.rangeLabel}</span>
-      </Link>
+        {formatDecimalHours(week.minutes)}
+      </span>
+      <span className="text-muted-foreground text-[0.65rem]">
+        <span className="md:hidden">W{week.index} · </span>
+        {week.rangeLabel}
+      </span>
+    </Link>
+  );
+}
+
+function WeekCell(props: WeekLinkProps) {
+  return (
+    <td className="p-1">
+      <WeekLink {...props} />
     </td>
   );
 }
@@ -101,6 +113,41 @@ function MonthRow({ month, clientId, hasLimit, isCurrent, busiest }: MonthRowPro
   );
 }
 
+// Phones get one card per month with the weeks as a wrapping grid instead of a wide table.
+function MonthCard({ month, clientId, hasLimit, isCurrent, busiest }: MonthRowProps) {
+  return (
+    <li className={cn('space-y-2.5 px-4 py-3.5', isCurrent && 'bg-accent/40')}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-sm font-semibold whitespace-nowrap">
+          {formatDateKey(month.monthKey, 'MMM yyyy')}
+          {isCurrent && (
+            <span className="bg-primary ml-2 inline-block size-1.5 rounded-full align-middle" />
+          )}
+        </p>
+        <div className="flex items-center gap-2">
+          <span className="font-figures text-sm font-semibold whitespace-nowrap">
+            {formatDecimalHours(month.usage.usedMinutes)}
+            {hasLimit && (
+              <span className="text-muted-foreground font-normal">
+                {' '}
+                / {formatDecimalHours(month.usage.limitMinutes ?? 0)}
+              </span>
+            )}
+          </span>
+          {hasLimit && <UsageStatusBadge status={month.usage.status} />}
+        </div>
+      </div>
+      <ul className="grid grid-cols-3 gap-1">
+        {month.weeks.map((week) => (
+          <li key={week.index} className="flex">
+            <WeekLink week={week} clientId={clientId} busiest={busiest} />
+          </li>
+        ))}
+      </ul>
+    </li>
+  );
+}
+
 export function YearOverviewGrid({
   overview,
   clientId,
@@ -131,7 +178,19 @@ export function YearOverviewGrid({
           </span>
         </p>
       </header>
-      <div className="overflow-x-auto">
+      <ul className="divide-y md:hidden">
+        {overview.months.map((month) => (
+          <MonthCard
+            key={month.monthKey}
+            month={month}
+            clientId={clientId}
+            hasLimit={hasLimit}
+            isCurrent={month.monthKey === currentMonthKey}
+            busiest={busiest}
+          />
+        ))}
+      </ul>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[900px] border-collapse">
           <thead>
             <tr className="text-muted-foreground text-[0.7rem] tracking-wider uppercase">

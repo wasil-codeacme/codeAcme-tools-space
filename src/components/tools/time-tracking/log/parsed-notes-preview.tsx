@@ -22,14 +22,14 @@ export function ParsedNotesPreview({
 }: ParsedNotesPreviewProps) {
   if (parsed.entries.length === 0 && parsed.skipped.length === 0) {
     return (
-      <div className="text-muted-foreground flex min-h-72 items-center justify-center rounded-xl border border-dashed p-6 text-center text-sm">
+      <div className="text-muted-foreground flex min-h-40 items-center justify-center rounded-xl border border-dashed p-6 text-center text-sm md:min-h-72">
         A preview of what will be logged shows up here as you paste.
       </div>
     );
   }
 
   return (
-    <ScrollArea className="h-72 rounded-xl border md:h-[50svh]">
+    <ScrollArea className="h-56 rounded-xl border md:h-[50svh]">
       <div className="space-y-4 p-3">
         {groupBySheetWeek(parsed.entries, (entry) => !excludedLines.has(entry.lineNumber)).map(
           (month) => (

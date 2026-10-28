@@ -63,7 +63,7 @@ export function ImportAccountsDialog({
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92svh] overflow-hidden sm:max-w-4xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="font-heading flex items-center gap-2">
             <ClipboardPaste className="size-4" />
@@ -80,9 +80,9 @@ export function ImportAccountsDialog({
             onChange={(event) => setText(event.target.value)}
             placeholder={SHEET_PLACEHOLDER}
             aria-label="Accounts table"
-            className="font-figures min-h-72 resize-none text-xs md:h-[50svh]"
+            className="font-figures min-h-44 resize-none text-xs md:h-[50svh] md:min-h-72"
           />
-          <ScrollArea className="h-72 rounded-xl border md:h-[50svh]">
+          <ScrollArea className="h-56 rounded-xl border md:h-[50svh]">
             {parsed.rows.length === 0 ? (
               <p className="text-muted-foreground p-6 text-center text-sm">
                 A preview of the accounts shows up here as you paste.
@@ -121,7 +121,7 @@ export function ImportAccountsDialog({
           </ScrollArea>
         </div>
         <DialogFooter className="items-center gap-3 sm:justify-between">
-          <div className="w-60">
+          <div className="w-full sm:w-60">
             <OwnerSelect value={scope} onChange={setScope} clients={clients} isAdmin={isAdmin} />
           </div>
           <div className="flex gap-2">

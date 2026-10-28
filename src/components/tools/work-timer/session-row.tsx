@@ -51,7 +51,7 @@ export function SessionRow({ session, showAuthor, canModify, onEdit }: SessionRo
       <span className="font-figures bg-accent text-accent-foreground inline-flex h-6 min-w-16 items-center justify-center rounded-md px-2 text-xs font-medium">
         {formatDuration(session.durationMinutes)}
       </span>
-      <span className="min-w-0 flex-1 truncate">
+      <span className="min-w-0 flex-1 truncate max-sm:basis-full max-sm:whitespace-normal">
         {session.note ?? <span className="text-muted-foreground">No note</span>}
         <span className="text-muted-foreground ml-2 text-xs">
           {[session.clientName, showAuthor && session.userName].filter(Boolean).join(' · ')}

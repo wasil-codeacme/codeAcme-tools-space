@@ -79,8 +79,12 @@ function PlatformBreadcrumbs() {
 export function PlatformHeader() {
   return (
     <header className="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 px-4 backdrop-blur-md md:px-6">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-1 data-[orientation=vertical]:h-4" />
+      {/* Phones navigate with the bottom tab bar, so the sidebar toggle is desktop-only. */}
+      <SidebarTrigger className="-ml-1 max-md:hidden" />
+      <Separator
+        orientation="vertical"
+        className="mr-1 data-[orientation=vertical]:h-4 max-md:hidden"
+      />
       {/* The pathname is only known per request, so the crumbs stream in after the static shell. */}
       <Suspense fallback={<Skeleton className="h-4 w-40" />}>
         <PlatformBreadcrumbs />

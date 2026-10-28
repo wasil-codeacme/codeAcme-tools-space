@@ -36,9 +36,12 @@ export function LogToolbar({
 }: LogToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
         <Select value={clientId} onValueChange={onClientChange}>
-          <SelectTrigger className="bg-card min-w-56 font-medium" aria-label="Client">
+          <SelectTrigger
+            className="bg-card w-full font-medium sm:w-auto sm:min-w-56"
+            aria-label="Client"
+          >
             <Building2 className="text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
@@ -55,7 +58,10 @@ export function LogToolbar({
             value={selectedMemberId ?? ALL_MEMBERS}
             onValueChange={(value) => onMemberChange(value === ALL_MEMBERS ? null : value)}
           >
-            <SelectTrigger className="bg-card min-w-44" aria-label="Team member">
+            <SelectTrigger
+              className="bg-card w-full sm:w-auto sm:min-w-44"
+              aria-label="Team member"
+            >
               <UsersRound className="text-muted-foreground" />
               <SelectValue />
             </SelectTrigger>
@@ -70,7 +76,7 @@ export function LogToolbar({
           </Select>
         )}
       </div>
-      <Button variant="outline" onClick={onPaste} className="bg-card">
+      <Button variant="outline" onClick={onPaste} className="bg-card w-full sm:w-auto">
         <ClipboardPaste />
         Paste from notes
       </Button>

@@ -43,6 +43,7 @@ const eslintConfig = defineConfig([
       'src/server/repositories/**/*.ts',
       'src/lib/prisma.ts',
       'prisma/**/*.ts',
+      'scripts/**/*.ts',
       'src/test/**/*.ts',
       'src/**/*.integration.test.ts',
     ],

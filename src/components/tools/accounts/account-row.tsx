@@ -60,11 +60,11 @@ export function AccountRow({ account, isAdmin, onEdit }: AccountRowProps) {
   return (
     <li
       className={cn(
-        'grid gap-3 px-4 py-3.5 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_auto] md:items-center',
+        'relative grid gap-1.5 px-4 py-3.5 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)_minmax(0,1.1fr)_auto] md:items-center md:gap-3',
         account.isArchived && 'opacity-55',
       )}
     >
-      <div className="flex min-w-0 items-start gap-3">
+      <div className="flex min-w-0 items-start gap-3 max-md:pr-9">
         <span className="bg-accent text-accent-foreground font-heading flex size-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold">
           {account.name.slice(0, 1).toUpperCase()}
         </span>
@@ -91,36 +91,39 @@ export function AccountRow({ account, isAdmin, onEdit }: AccountRowProps) {
         </div>
       </div>
 
-      <div className="min-w-0 text-sm">
-        {account.url ? (
-          <a
-            href={account.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary inline-flex max-w-full items-center gap-1 underline-offset-4 hover:underline"
-          >
-            <span className="truncate">{hostOf(account.url)}</span>
-            <ExternalLink className="size-3 shrink-0" />
-          </a>
-        ) : (
-          <span className="text-muted-foreground/60">No link</span>
-        )}
+      {/* On phones link and login share one line under the name; on desktop they are grid columns. */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 max-md:pl-12 md:contents">
+        <div className="min-w-0 text-sm">
+          {account.url ? (
+            <a
+              href={account.url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary inline-flex max-w-full items-center gap-1 underline-offset-4 hover:underline"
+            >
+              <span className="truncate">{hostOf(account.url)}</span>
+              <ExternalLink className="size-3 shrink-0" />
+            </a>
+          ) : (
+            <span className="text-muted-foreground/60">No link</span>
+          )}
+        </div>
+
+        <div className="flex min-w-0 items-center gap-1 text-sm">
+          {account.username ? (
+            <>
+              <span className="truncate" title={account.username}>
+                {account.username}
+              </span>
+              <CopyTextButton value={account.username} label="Copy login" />
+            </>
+          ) : (
+            <span className="text-muted-foreground/60">No login</span>
+          )}
+        </div>
       </div>
 
-      <div className="flex min-w-0 items-center gap-1 text-sm">
-        {account.username ? (
-          <>
-            <span className="truncate" title={account.username}>
-              {account.username}
-            </span>
-            <CopyTextButton value={account.username} label="Copy login" />
-          </>
-        ) : (
-          <span className="text-muted-foreground/60">No login</span>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 max-md:pl-12">
         <SecretControl
           accountId={account.id}
           field={SecretField.SECRET}
@@ -143,6 +146,7 @@ export function AccountRow({ account, isAdmin, onEdit }: AccountRowProps) {
           <Button
             variant="ghost"
             size="icon-sm"
+            className="max-md:absolute max-md:top-3 max-md:right-2"
             aria-label={`Actions for ${account.name}`}
             disabled={isPending}
           >

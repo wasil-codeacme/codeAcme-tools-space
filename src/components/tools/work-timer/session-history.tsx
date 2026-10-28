@@ -48,9 +48,9 @@ function minutesBetween(
 
 function Stat({ label, minutes }: { label: string; minutes: number }) {
   return (
-    <div className="bg-card rounded-2xl border p-4">
+    <div className="bg-card rounded-2xl border p-3 sm:p-4">
       <p className="text-muted-foreground text-[0.7rem] tracking-wider uppercase">{label}</p>
-      <p className="font-figures mt-1 text-2xl font-medium">{formatDuration(minutes)}</p>
+      <p className="font-figures mt-1 text-lg font-medium sm:text-2xl">{formatDuration(minutes)}</p>
       <p className="font-figures text-muted-foreground text-xs">{formatDecimalHours(minutes)} h</p>
     </div>
   );
@@ -66,7 +66,7 @@ export function SessionHistory(props: SessionHistoryProps) {
 
   return (
     <section className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Stat label="Today" minutes={minutesBetween(items, todayKey, todayKey)} />
         <Stat
           label="This week"

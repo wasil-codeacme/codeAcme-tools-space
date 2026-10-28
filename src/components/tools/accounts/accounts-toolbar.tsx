@@ -30,9 +30,12 @@ interface AccountsToolbarProps {
 export function AccountsToolbar(props: AccountsToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="grid w-full gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
         <Select value={props.scope} onValueChange={props.onScopeChange}>
-          <SelectTrigger className="bg-card min-w-52 font-medium" aria-label="Client">
+          <SelectTrigger
+            className="bg-card w-full font-medium sm:w-auto sm:min-w-52"
+            aria-label="Client"
+          >
             <Building2 className="text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
@@ -48,7 +51,7 @@ export function AccountsToolbar(props: AccountsToolbarProps) {
             )}
           </SelectContent>
         </Select>
-        <InputGroup className="bg-card w-64">
+        <InputGroup className="bg-card w-full sm:w-64">
           <InputGroupAddon>
             <Search />
           </InputGroupAddon>
@@ -72,7 +75,7 @@ export function AccountsToolbar(props: AccountsToolbarProps) {
           </div>
         )}
       </div>
-      <div className="flex gap-2">
+      <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
         <Button variant="outline" className="bg-card" onClick={props.onImport}>
           <ClipboardPaste />
           Paste from sheet

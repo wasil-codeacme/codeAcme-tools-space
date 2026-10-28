@@ -49,7 +49,7 @@ export function ReportPreview({ report, branded }: { report: TimeReport; branded
           {MESSAGES.REPORT.NEEDS_REVIEW(report.needsReviewCount)} Check them before sending.
         </p>
       )}
-      <article className="bg-card mx-auto max-w-4xl space-y-6 rounded-2xl border p-6 shadow-[0_24px_60px_-30px_color-mix(in_oklch,var(--foreground)_30%,transparent)] sm:p-10">
+      <article className="bg-card mx-auto max-w-4xl space-y-6 rounded-2xl border p-4 shadow-[0_24px_60px_-30px_color-mix(in_oklch,var(--foreground)_30%,transparent)] sm:p-10">
         <ReportHeader report={report} branded={branded} />
         <div>
           <p
@@ -67,7 +67,7 @@ export function ReportPreview({ report, branded }: { report: TimeReport; branded
             <p className="text-muted-foreground">For {report.client.contactName}</p>
           )}
         </div>
-        <div className="grid gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat
             label="Total time"
             value={`${formatDecimalHours(report.totalMinutes)} h`}

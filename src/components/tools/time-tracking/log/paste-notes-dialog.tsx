@@ -101,7 +101,7 @@ export function PasteNotesDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : close())}>
-      <DialogContent className="max-h-[90svh] overflow-hidden sm:max-w-4xl">
+      <DialogContent className="max-h-[92svh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="font-heading flex items-center gap-2">
             <ClipboardPaste className="size-4" />
@@ -118,7 +118,7 @@ export function PasteNotesDialog({
             onChange={(event) => setText(event.target.value)}
             placeholder={NOTES_PLACEHOLDER}
             aria-label="Notes"
-            className="font-figures min-h-72 resize-none text-sm md:h-[50svh]"
+            className="font-figures min-h-44 resize-none text-sm md:h-[50svh] md:min-h-72"
           />
           <ParsedNotesPreview
             parsed={parsed}
@@ -127,10 +127,10 @@ export function PasteNotesDialog({
           />
         </div>
         <DialogFooter className="items-center gap-3 sm:justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-start">
             {categories.length > 0 && (
               <Select value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger className="w-56" aria-label="Category for imported items">
+                <SelectTrigger className="w-44 sm:w-56" aria-label="Category for imported items">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -143,7 +143,7 @@ export function PasteNotesDialog({
                 </SelectContent>
               </Select>
             )}
-            <p className="font-figures text-muted-foreground text-sm">
+            <p className="font-figures text-muted-foreground text-sm whitespace-nowrap">
               {included.length} items · {formatDuration(includedMinutes)}
             </p>
           </div>
