@@ -25,7 +25,7 @@ export function MonthUsageMeter({
   const percent = ratio === null ? 0 : Math.min(FULL_PERCENT, ratio * FULL_PERCENT);
 
   return (
-    <div className={cn('space-y-3', !compact && 'bg-card rounded-2xl border p-5')}>
+    <div className={cn('space-y-3', !compact && 'ca-glow bg-card rounded-2xl border p-5')}>
       {!compact && (
         <div className="flex items-center justify-between gap-2">
           <p className="flex items-center gap-2 text-sm font-medium">

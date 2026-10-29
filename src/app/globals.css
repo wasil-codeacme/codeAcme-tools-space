@@ -283,3 +283,56 @@
     cursor: not-allowed;
   }
 }
+
+/* Cursor-following glow for cards (fed by GlowTracker): a soft violet spotlight inside the card
+   and a brighter rim on the border nearest the pointer. Off until the pointer has moved, and only
+   for mouse and trackpad users. */
+@utility ca-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+@media (pointer: fine) {
+  .ca-glow::before,
+  .ca-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 300ms ease-out;
+  }
+
+  .ca-glow::before {
+    z-index: -1;
+    background: radial-gradient(
+      420px circle at var(--glow-x, -999px) var(--glow-y, -999px),
+      color-mix(in oklab, var(--primary) 7%, transparent),
+      transparent 45%
+    );
+  }
+
+  .ca-glow::after {
+    padding: 1px;
+    background: radial-gradient(
+      260px circle at var(--glow-x, -999px) var(--glow-y, -999px),
+      color-mix(in oklab, var(--primary) 55%, transparent),
+      transparent 50%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  .ca-glow:hover::before {
+    opacity: 1;
+  }
+
+  /* The rim also shows on cards next to the one being hovered, so it reads as light falling across. */
+  :has(> .ca-glow:hover) > .ca-glow::after,
+  .ca-glow:hover::after {
+    opacity: 1;
+  }
+}

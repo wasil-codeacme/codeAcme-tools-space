@@ -59,7 +59,7 @@ export function ReportFilters({
   );
 
   return (
-    <div className="bg-card space-y-3 rounded-2xl border p-4">
+    <div className="ca-glow bg-card space-y-3 rounded-2xl border p-4">
       <div className="flex flex-wrap items-center gap-2">
         <Select value={query.clientId} onValueChange={(clientId) => navigate({ clientId })}>
           <SelectTrigger className="min-w-56 font-medium" aria-label="Client">

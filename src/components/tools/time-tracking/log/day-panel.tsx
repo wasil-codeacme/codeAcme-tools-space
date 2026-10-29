@@ -56,7 +56,7 @@ export function DayPanel({
   const dayTotal = entries.reduce((sum, entry) => sum + entry.durationMinutes, 0);
 
   return (
-    <section className="bg-card flex min-h-80 flex-col rounded-2xl border">
+    <section className="ca-glow bg-card flex min-h-80 flex-col rounded-2xl border">
       <header className="flex items-baseline justify-between gap-3 border-b px-5 py-4">
         <div>
           <h2 className="font-heading text-lg font-semibold tracking-tight">

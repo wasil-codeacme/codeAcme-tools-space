@@ -150,7 +150,7 @@ export function InvoiceForm({
 
   return (
     <form onSubmit={onSubmit} noValidate className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="bg-card space-y-6 rounded-2xl border p-5 sm:p-6">
+      <div className="ca-glow bg-card space-y-6 rounded-2xl border p-5 sm:p-6">
         <FieldGroup>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field data-invalid={Boolean(errors.clientId)}>
@@ -316,7 +316,7 @@ export function InvoiceForm({
       </div>
 
       <aside className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-        <div className="bg-card space-y-4 rounded-2xl border p-5">
+        <div className="ca-glow bg-card space-y-4 rounded-2xl border p-5">
           <Field data-invalid={Boolean(errors.paymentProfileId)}>
             <FieldLabel>Pay to</FieldLabel>
             <Controller

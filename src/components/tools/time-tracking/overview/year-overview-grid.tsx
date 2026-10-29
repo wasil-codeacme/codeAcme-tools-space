@@ -175,7 +175,7 @@ export function YearOverviewGrid({
   );
 
   return (
-    <section className="bg-card overflow-hidden rounded-2xl border">
+    <section className="ca-glow bg-card overflow-hidden rounded-2xl border">
       <header className="flex flex-wrap items-baseline justify-between gap-2 border-b px-5 py-4">
         <div>
           <h2 className="font-heading text-lg font-semibold tracking-tight">

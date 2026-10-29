@@ -113,7 +113,7 @@ export function AccountsWorkspace(props: AccountsWorkspaceProps) {
                 {owner}
                 <span className="font-figures font-normal">{ownerAccounts.length}</span>
               </h2>
-              <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
+              <ul className="ca-glow bg-card divide-y overflow-hidden rounded-2xl border">
                 {ownerAccounts.map((account) => (
                   <AccountRow
                     key={account.id}

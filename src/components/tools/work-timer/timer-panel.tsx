@@ -139,7 +139,7 @@ export function TimerPanel({
   }
 
   return (
-    <section className="bg-card relative overflow-hidden rounded-3xl border px-5 py-8 sm:px-8">
+    <section className="ca-glow bg-card relative overflow-hidden rounded-3xl border px-5 py-8 sm:px-8">
       <div aria-hidden className="bg-ledger absolute inset-0 opacity-70" />
       {timer && !paused && (
         <div

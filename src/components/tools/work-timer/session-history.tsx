@@ -48,7 +48,7 @@ function minutesBetween(
 
 function Stat({ label, minutes }: { label: string; minutes: number }) {
   return (
-    <div className="bg-card rounded-2xl border p-3 sm:p-4">
+    <div className="ca-glow bg-card rounded-2xl border p-3 sm:p-4">
       <p className="text-muted-foreground text-[0.7rem] tracking-wider uppercase">{label}</p>
       <p className="font-figures mt-1 text-lg font-medium sm:text-2xl">{formatDuration(minutes)}</p>
       <p className="font-figures text-muted-foreground text-xs">{formatDecimalHours(minutes)} h</p>
@@ -119,7 +119,10 @@ export function SessionHistory(props: SessionHistoryProps) {
                   </span>
                 </div>
                 {[...month.weeks].reverse().map((week) => (
-                  <div key={week.index} className="bg-card overflow-hidden rounded-2xl border">
+                  <div
+                    key={week.index}
+                    className="ca-glow bg-card overflow-hidden rounded-2xl border"
+                  >
                     <p className="text-primary flex items-baseline justify-between border-b px-4 py-2 text-xs font-semibold tracking-wide uppercase">
                       <span>
                         Week {week.index} · {week.rangeLabel}

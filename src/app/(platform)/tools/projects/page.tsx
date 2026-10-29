@@ -54,7 +54,7 @@ function ProjectCard({
   return (
     <li
       style={{ '--i': index } as CSSProperties}
-      className="ca-reveal bg-card flex flex-col gap-4 rounded-2xl border p-5"
+      className="ca-reveal ca-glow bg-card flex flex-col gap-4 rounded-2xl border p-5"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

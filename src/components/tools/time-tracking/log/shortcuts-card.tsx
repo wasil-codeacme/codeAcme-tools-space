@@ -11,7 +11,7 @@ const SHORTCUTS = [
 
 export function ShortcutsCard() {
   return (
-    <div className="bg-card hidden rounded-2xl border p-5 lg:block">
+    <div className="ca-glow bg-card hidden rounded-2xl border p-5 lg:block">
       <p className="mb-3 flex items-center gap-2 text-sm font-medium">
         <Keyboard className="text-muted-foreground size-4" />
         Shortcuts

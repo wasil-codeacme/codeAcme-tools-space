@@ -35,7 +35,7 @@ async function ActivityContent() {
       <p className="text-muted-foreground text-sm">
         Every time someone adds, edits, reveals or copies a secret. Newest first.
       </p>
-      <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
+      <ul className="ca-glow bg-card divide-y overflow-hidden rounded-2xl border">
         {events.map((event) => (
           <li
             key={event.id}

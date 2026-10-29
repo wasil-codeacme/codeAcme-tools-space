@@ -101,7 +101,7 @@ export function LogWorkspace(props: LogWorkspaceProps) {
         onMemberChange={(memberId) => navigate({ member: memberId })}
         onPaste={() => setPasteOpen(true)}
       />
-      <section className="bg-card space-y-4 rounded-2xl border p-4 sm:p-5">
+      <section className="ca-glow bg-card space-y-4 rounded-2xl border p-4 sm:p-5">
         <WeekHeader
           weekStartKey={view.weekStartKey}
           weekEndKey={view.weekEndKey}

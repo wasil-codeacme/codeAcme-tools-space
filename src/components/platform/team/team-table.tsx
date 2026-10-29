@@ -65,7 +65,7 @@ export function TeamTable({
 
   return (
     <>
-      <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
+      <ul className="ca-glow bg-card divide-y overflow-hidden rounded-2xl border">
         {users.map((member) => {
           const isSelf = member.id === currentUserId;
           return (

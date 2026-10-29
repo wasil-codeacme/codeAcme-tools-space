@@ -43,7 +43,7 @@ async function ClientsContent({ searchParams }: { searchParams: SearchParams }) 
               <li key={client.id}>
                 <Link
                   href={ROUTES.TOOLS.TIME_TRACKING.CLIENT(client.id)}
-                  className="group bg-card hover:border-primary/30 focus-visible:ring-ring/50 flex h-full flex-col gap-4 rounded-2xl border p-5 transition-[border-color,box-shadow] duration-300 outline-none hover:shadow-[0_12px_32px_-16px_color-mix(in_oklch,var(--primary)_40%,transparent)] focus-visible:ring-3"
+                  className="group ca-glow bg-card hover:border-primary/30 focus-visible:ring-ring/50 flex h-full flex-col gap-4 rounded-2xl border p-5 transition-[border-color,box-shadow] duration-300 outline-none hover:shadow-[0_12px_32px_-16px_color-mix(in_oklch,var(--primary)_40%,transparent)] focus-visible:ring-3"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

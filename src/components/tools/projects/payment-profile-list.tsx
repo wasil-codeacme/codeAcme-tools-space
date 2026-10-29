@@ -64,7 +64,7 @@ export function PaymentProfileList({ profiles }: { profiles: PaymentProfileView[
   return (
     <ul className="grid gap-4 md:grid-cols-2">
       {profiles.map((profile) => (
-        <li key={profile.id} className="bg-card flex flex-col gap-3 rounded-2xl border p-5">
+        <li key={profile.id} className="ca-glow bg-card flex flex-col gap-3 rounded-2xl border p-5">
           <div className="flex items-center gap-2">
             <h2 className="text-base font-semibold">{profile.label}</h2>
             {profile.isFavorite && (

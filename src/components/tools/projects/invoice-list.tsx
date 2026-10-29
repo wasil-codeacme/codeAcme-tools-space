@@ -101,7 +101,7 @@ function InvoiceRow({ invoice, canEdit }: { invoice: InvoiceView; canEdit: boole
 
 export function InvoiceList({ invoices, canEdit }: { invoices: InvoiceView[]; canEdit: boolean }) {
   return (
-    <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
+    <ul className="ca-glow bg-card divide-y overflow-hidden rounded-2xl border">
       {invoices.map((invoice) => (
         <InvoiceRow key={invoice.id} invoice={invoice} canEdit={canEdit} />
       ))}
