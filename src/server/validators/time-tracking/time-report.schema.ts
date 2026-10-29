@@ -56,6 +56,8 @@ export const reportExportQuerySchema = reportQueryFields
     format: z.enum([ReportFormat.PDF, ReportFormat.CSV]),
     // The person named on the report, e.g. "Muhammad Ahmed Fraz"; defaults to nobody named.
     preparedBy: z.string().trim().max(MAX_PREPARED_BY_LENGTH).optional(),
+    // "1" shows the file in the browser (the in-app preview) instead of downloading it.
+    inline: z.literal('1').optional(),
   })
   .refine(isValidRange, RANGE_ERROR);
 

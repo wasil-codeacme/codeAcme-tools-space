@@ -10,7 +10,7 @@ import { getInvoice } from '@/server/services/projects/projects.service';
 import { idSchema } from '@/server/validators/shared.schema';
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: RouteContext<'/api/tools/projects/invoices/[invoiceId]/pdf'>,
 ) {
   const actor = await getSessionUser();
@@ -37,7 +37,8 @@ export async function GET(
     return new Response(new Uint8Array(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="${invoice.number}.pdf"`,
+        // ?inline=1 opens the PDF in the browser to look it over; otherwise it downloads.
+        'Content-Disposition': `${new URL(request.url).searchParams.get('inline') === '1' ? 'inline' : 'attachment'}; filename="${invoice.number}.pdf"`,
         'Cache-Control': 'no-store',
       },
     });

@@ -17,11 +17,16 @@ import {
   reportExportQuerySchema,
 } from '@/server/validators/time-tracking/time-report.schema';
 
-function fileResponse(body: BodyInit, contentType: string, fileName: string): Response {
+function fileResponse(
+  body: BodyInit,
+  contentType: string,
+  fileName: string,
+  inline = false,
+): Response {
   return new Response(body, {
     headers: {
       'Content-Type': contentType,
-      'Content-Disposition': `attachment; filename="${fileName}"`,
+      'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${fileName}"`,
       'Cache-Control': 'no-store',
     },
   });
@@ -49,7 +54,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { format, branding, preparedBy } = parsed.data;
+    const { format, branding, preparedBy, inline } = parsed.data;
     const report = await buildTimeReport(actor, parsed.data, await getTodayKey());
     const fileName = reportFileName(report, format);
     if (format === ReportFormat.CSV) {
@@ -59,7 +64,7 @@ export async function GET(request: NextRequest) {
       branded: branding === ReportBranding.CODEACME,
       preparedBy: preparedBy || null,
     });
-    return fileResponse(new Uint8Array(pdf), 'application/pdf', fileName);
+    return fileResponse(new Uint8Array(pdf), 'application/pdf', fileName, inline === '1');
   } catch (error) {
     if (error instanceof NotFoundError) {
       return Response.json(

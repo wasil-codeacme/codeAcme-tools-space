@@ -21,6 +21,7 @@ import type { InvoiceView } from '@/types/projects';
 const LOGO_PATH = path.join(process.cwd(), 'src/server/reports/assets/codeacme-logo-mark.png');
 const DATE_FORMAT = 'd MMM yyyy';
 const COMPANY_WEBSITE = 'codeacme.com';
+const BAND_MUTED = '#D9CCFB';
 
 let logoPromise: Promise<Buffer> | null = null;
 function loadLogo(): Promise<Buffer> {
@@ -30,6 +31,7 @@ function loadLogo(): Promise<Buffer> {
 
 const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 22 },
+  bandRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   label: { fontSize: 7.5, letterSpacing: 1.2, color: PDF_COLORS.muted, textTransform: 'uppercase' },
   strong: { fontFamily: 'Helvetica-Bold' },
   big: { fontFamily: 'Helvetica-Bold', fontSize: 24, marginTop: 2 },
@@ -63,13 +65,43 @@ function InvoiceDocument({ invoice, logo }: { invoice: InvoiceView; logo: Buffer
   return (
     <Document title={`${invoice.number} · ${invoice.clientName}`} author={SITE.COMPANY}>
       <Page size="A4" style={pdfStyles.page}>
-        <View style={pdfStyles.header}>
-          <View style={pdfStyles.brandRow}>
-            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image has no alt attribute */}
-            <Image src={{ data: logo, format: 'png' }} style={pdfStyles.logo} />
-            <Text style={pdfStyles.company}>{SITE.COMPANY}</Text>
+        <View style={[pdfStyles.band, { backgroundColor: PDF_COLORS.brand }]}>
+          <View style={pdfStyles.bandTop}>
+            <View style={pdfStyles.logoChip}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf's Image has no alt attribute */}
+              <Image src={{ data: logo, format: 'png' }} style={pdfStyles.logo} />
+              <Text style={pdfStyles.company}>{SITE.COMPANY}</Text>
+            </View>
+            <Text style={[pdfStyles.eyebrow, { color: BAND_MUTED }]}>Invoice</Text>
           </View>
-          <Text style={pdfStyles.eyebrow}>Invoice</Text>
+          <View style={styles.bandRow}>
+            <View>
+              <Text style={[pdfStyles.eyebrow, { color: BAND_MUTED }]}>Invoice number</Text>
+              <Text style={[pdfStyles.bandTitle, { color: PDF_COLORS.white, marginTop: 4 }]}>
+                {invoice.number}
+              </Text>
+            </View>
+            <View style={{ alignItems: 'flex-end' }}>
+              <Text style={[pdfStyles.eyebrow, { color: BAND_MUTED }]}>Amount due</Text>
+              <Text style={[pdfStyles.bandTitle, { color: PDF_COLORS.white, marginTop: 4 }]}>
+                {money(invoice.totalCents)}
+              </Text>
+            </View>
+          </View>
+          <View style={pdfStyles.bandMetaRow}>
+            {[
+              { label: 'Issued', value: formatDateKey(invoice.issueDate, DATE_FORMAT) },
+              { label: 'Due', value: formatDateKey(invoice.dueDate, DATE_FORMAT) },
+              ...(invoice.projectName ? [{ label: 'Project', value: invoice.projectName }] : []),
+            ].map((item) => (
+              <View key={item.label}>
+                <Text style={[pdfStyles.bandMetaLabel, { color: BAND_MUTED }]}>{item.label}</Text>
+                <Text style={[pdfStyles.bandMetaValue, { color: PDF_COLORS.white }]}>
+                  {item.value}
+                </Text>
+              </View>
+            ))}
+          </View>
         </View>
 
         <View style={styles.topRow}>
@@ -77,15 +109,11 @@ function InvoiceDocument({ invoice, logo }: { invoice: InvoiceView; logo: Buffer
             <Text style={styles.label}>Billed to</Text>
             <Text style={[styles.strong, styles.paragraph]}>{invoice.clientName}</Text>
             {invoice.clientContactName && <Text>{invoice.clientContactName}</Text>}
-            {invoice.projectName && (
-              <Text style={styles.paragraph}>Project: {invoice.projectName}</Text>
-            )}
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={styles.label}>Invoice</Text>
-            <Text style={[styles.strong, styles.paragraph]}>{invoice.number}</Text>
-            <Text>Issued {formatDateKey(invoice.issueDate, DATE_FORMAT)}</Text>
-            <Text>Due {formatDateKey(invoice.dueDate, DATE_FORMAT)}</Text>
+            <Text style={styles.label}>From</Text>
+            <Text style={[styles.strong, styles.paragraph]}>{SITE.COMPANY}</Text>
+            <Text>{COMPANY_WEBSITE}</Text>
           </View>
         </View>
 

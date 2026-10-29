@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { FileDown } from 'lucide-react';
+import { Eye, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -79,6 +79,16 @@ function InvoiceRow({ invoice, canEdit }: { invoice: InvoiceView; canEdit: boole
           ))}
         </SelectContent>
       </Select>
+      <Button variant="ghost" size="sm" asChild>
+        <a
+          href={`${ROUTES.API.PROJECTS.INVOICE_PDF(invoice.id)}?inline=1`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Eye />
+          View
+        </a>
+      </Button>
       <Button variant="outline" size="sm" asChild>
         <a href={ROUTES.API.PROJECTS.INVOICE_PDF(invoice.id)} download>
           <FileDown />
