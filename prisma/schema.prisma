@@ -140,6 +140,10 @@ model Account {
   username    String?     @db.VarChar(255)
   twoFactor   String?     @db.VarChar(255)
   notes       String?     @db.Text
+  // Where the real credential is kept. Null means not recorded yet.
+  storageLocation SecretLocation?
+  // e.g. "Bitwarden › The 30k Club collection" or "Anna's shared Google Drive".
+  locationNote    String?         @db.VarChar(500)
   // AES-256-GCM ciphertext ("v1.<iv>.<tag>.<data>"); never sent to the browser except on reveal.
   secretCiphertext      String?   @db.Text
   secureNotesCiphertext String?   @db.Text
@@ -315,4 +319,12 @@ model InvoiceLine {
 model InvoiceSequence {
   year       Int @id
   lastNumber Int
+}
+
+enum SecretLocation {
+  TOOLS_VAULT
+  BITWARDEN
+  ONE_PASSWORD
+  CLIENT_HOLDS
+  OTHER
 }

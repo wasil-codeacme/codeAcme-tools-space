@@ -33,7 +33,7 @@ export const TOOLS = [
     id: ToolId.ACCOUNTS,
     name: 'Accounts & Secrets',
     description:
-      'Every client account in one place: links, logins, access levels and encrypted passwords with an audit trail.',
+      'What we hold for CodeAcme and each client, and where it lives: links, logins, access levels, optional encrypted passwords and an audit trail.',
     icon: KeyRound,
     href: ROUTES.TOOLS.ACCOUNTS.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],

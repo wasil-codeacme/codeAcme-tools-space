@@ -1,4 +1,4 @@
-import type { AccountAccessLevel } from '@/generated/prisma/enums';
+import type { AccountAccessLevel, SecretLocation } from '@/generated/prisma/enums';
 import { prisma } from '@/lib/prisma';
 import type { AccountView } from '@/types/accounts';
 
@@ -11,6 +11,8 @@ export interface AccountData {
   username: string | null;
   twoFactor: string | null;
   notes: string | null;
+  storageLocation: SecretLocation | null;
+  locationNote: string | null;
 }
 
 export interface AccountCiphertexts {
@@ -54,6 +56,8 @@ function toView(row: AccountRow): AccountView {
     username: row.username,
     twoFactor: row.twoFactor,
     notes: row.notes,
+    storageLocation: row.storageLocation,
+    locationNote: row.locationNote,
     hasSecret: row.secretCiphertext !== null,
     hasSecureNotes: row.secureNotesCiphertext !== null,
     secretUpdatedAt: row.secretUpdatedAt?.toISOString() ?? null,

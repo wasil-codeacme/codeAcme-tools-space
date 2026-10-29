@@ -30,15 +30,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { AccountAccessLevel } from '@/generated/prisma/enums';
+import { AccountAccessLevel, SecretLocation } from '@/generated/prisma/enums';
 import { reportActionError } from '@/lib/action-feedback';
-import { ACCESS_LEVEL_LABELS, INTERNAL_SCOPE } from '@/lib/accounts/labels';
+import { ACCESS_LEVEL_LABELS, SECRET_LOCATION_LABELS, INTERNAL_SCOPE } from '@/lib/accounts/labels';
 import { generatePassword } from '@/lib/generate-password';
 import { MESSAGES } from '@/lib/messages';
 import { createAccount, updateAccount } from '@/server/actions/accounts/account.actions';
 import type { AccountView } from '@/types/accounts';
 
 const NO_ACCESS_LEVEL = 'none';
+const NO_LOCATION = 'none';
+const LOCATIONS = Object.values(SecretLocation);
 const ACCESS_LEVELS = [
   AccountAccessLevel.MASTER,
   AccountAccessLevel.ADMIN,
@@ -54,6 +56,8 @@ interface AccountFormValues {
   accessLevel: string;
   twoFactor: string;
   notes: string;
+  storageLocation: string;
+  locationNote: string;
   secret: string;
   secureNotes: string;
 }
@@ -76,6 +80,8 @@ function defaults(account: AccountView | null, defaultScope: string): AccountFor
     accessLevel: account?.accessLevel ?? NO_ACCESS_LEVEL,
     twoFactor: account?.twoFactor ?? '',
     notes: account?.notes ?? '',
+    storageLocation: account?.storageLocation ?? NO_LOCATION,
+    locationNote: account?.locationNote ?? '',
     secret: '',
     secureNotes: '',
   };
@@ -92,6 +98,8 @@ function toPayload(values: AccountFormValues) {
     accessLevel,
     twoFactor: values.twoFactor,
     notes: values.notes,
+    storageLocation: LOCATIONS.find((location) => location === values.storageLocation) ?? null,
+    locationNote: values.locationNote,
     secret: values.secret,
     secureNotes: values.secureNotes,
   };
@@ -213,6 +221,37 @@ export function AccountFormDialog({
                 placeholder="e.g. Authenticator on Jo's phone"
                 autoComplete="off"
                 {...form.register('twoFactor')}
+              />
+            </Field>
+            <Field>
+              <FieldLabel>Where the password lives</FieldLabel>
+              <Controller
+                control={form.control}
+                name="storageLocation"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full" aria-label="Where the password lives">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={NO_LOCATION}>Not recorded</SelectItem>
+                      {LOCATIONS.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {SECRET_LOCATION_LABELS[location]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="account-location-note">Location detail</FieldLabel>
+              <Input
+                id="account-location-note"
+                placeholder="e.g. Bitwarden › The 30k Club"
+                autoComplete="off"
+                {...form.register('locationNote')}
               />
             </Field>
             <Field className="sm:col-span-2">

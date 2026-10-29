@@ -140,7 +140,14 @@ export async function importAccounts(
   const created: AccountView[] = [];
   for (const row of rows) {
     created.push(
-      await accountRepository.create({ ...row, clientId, notes: null, updatedById: actor.id }),
+      await accountRepository.create({
+        ...row,
+        clientId,
+        notes: null,
+        storageLocation: null,
+        locationNote: null,
+        updatedById: actor.id,
+      }),
     );
   }
   await accountAuditRepository.recordMany(

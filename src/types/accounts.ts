@@ -1,4 +1,8 @@
-import type { AccountAccessLevel, AccountAuditAction } from '@/generated/prisma/enums';
+import type {
+  AccountAccessLevel,
+  AccountAuditAction,
+  SecretLocation,
+} from '@/generated/prisma/enums';
 
 export const SecretField = {
   SECRET: 'secret',
@@ -26,6 +30,8 @@ export interface AccountView {
   username: string | null;
   twoFactor: string | null;
   notes: string | null;
+  storageLocation: SecretLocation | null;
+  locationNote: string | null;
   hasSecret: boolean;
   hasSecureNotes: boolean;
   secretUpdatedAt: string | null;

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AccountAccessLevel, AccountAuditAction, Role } from '@/generated/prisma/enums';
+import {
+  AccountAccessLevel,
+  AccountAuditAction,
+  Role,
+  SecretLocation,
+} from '@/generated/prisma/enums';
 import { prisma } from '@/lib/prisma';
 import { ForbiddenError, NotFoundError } from '@/server/errors';
 import {
@@ -22,6 +27,8 @@ function fields(clientId: string | null, overrides: { secret?: string; name?: st
     username: 'owner@example.com',
     twoFactor: null,
     notes: null,
+    storageLocation: null,
+    locationNote: null,
     secret: overrides.secret,
     secureNotes: undefined,
   };
@@ -133,5 +140,22 @@ describe('account access', () => {
       }),
     ).rejects.toBeInstanceOf(NotFoundError);
     expect(await prisma.account.count()).toBe(0);
+  });
+
+  it('records where a credential lives without storing the password itself', async () => {
+    const admin = await createTestUser(Role.ADMIN);
+    const client = await createTestClient();
+    await createAccount(asActor(admin), {
+      ...fields(client.id),
+      storageLocation: SecretLocation.BITWARDEN,
+      locationNote: 'Bitwarden › The 30k Club',
+    });
+
+    const [listed] = await listAccounts(asActor(admin));
+    expect(listed).toMatchObject({
+      storageLocation: SecretLocation.BITWARDEN,
+      locationNote: 'Bitwarden › The 30k Club',
+      hasSecret: false,
+    });
   });
 });

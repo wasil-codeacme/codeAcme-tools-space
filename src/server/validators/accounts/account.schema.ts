@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AccountAccessLevel } from '@/generated/prisma/enums';
+import { AccountAccessLevel, SecretLocation } from '@/generated/prisma/enums';
 import {
   MAX_ACCOUNT_NOTES_LENGTH,
   MAX_ACCOUNT_PURPOSE_LENGTH,
@@ -26,6 +26,18 @@ const urlSchema = z
     message: 'Enter a full URL, e.g. https://example.com',
   });
 
+const MAX_LOCATION_NOTE_LENGTH = 500;
+
+const storageLocationSchema = z
+  .enum([
+    SecretLocation.TOOLS_VAULT,
+    SecretLocation.BITWARDEN,
+    SecretLocation.ONE_PASSWORD,
+    SecretLocation.CLIENT_HOLDS,
+    SecretLocation.OTHER,
+  ])
+  .nullable();
+
 // Blank means "leave the stored secret as it is" when editing.
 const secretInputSchema = z
   .string()
@@ -43,6 +55,8 @@ export const accountFieldsSchema = z.object({
   username: optionalTextSchema(MAX_NAME_LENGTH),
   twoFactor: optionalTextSchema(MAX_NAME_LENGTH),
   notes: optionalTextSchema(MAX_ACCOUNT_NOTES_LENGTH),
+  storageLocation: storageLocationSchema,
+  locationNote: optionalTextSchema(MAX_LOCATION_NOTE_LENGTH),
   secret: secretInputSchema,
   secureNotes: secretInputSchema,
 });

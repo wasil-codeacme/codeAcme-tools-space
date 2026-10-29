@@ -8,6 +8,7 @@ import {
   MoreHorizontal,
   Pencil,
   ShieldCheck,
+  Vault,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { CopyTextButton } from '@/components/tools/accounts/copy-text-button';
@@ -22,7 +23,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { reportActionError } from '@/lib/action-feedback';
-import { ACCESS_LEVEL_LABELS } from '@/lib/accounts/labels';
+import { ACCESS_LEVEL_LABELS, SECRET_LOCATION_LABELS } from '@/lib/accounts/labels';
 import { MESSAGES } from '@/lib/messages';
 import { cn } from '@/lib/utils';
 import { setAccountArchived } from '@/server/actions/accounts/account.actions';
@@ -88,6 +89,15 @@ export function AccountRow({ account, isAdmin, canEdit, onEdit }: AccountRowProp
           </p>
           {account.purpose && (
             <p className="text-muted-foreground text-sm text-pretty">{account.purpose}</p>
+          )}
+          {account.storageLocation && (
+            <p className="text-primary mt-0.5 inline-flex items-center gap-1 text-xs font-medium">
+              <Vault className="size-3.5" />
+              {SECRET_LOCATION_LABELS[account.storageLocation]}
+              {account.locationNote && (
+                <span className="text-muted-foreground font-normal">· {account.locationNote}</span>
+              )}
+            </p>
           )}
         </div>
       </div>
