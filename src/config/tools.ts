@@ -1,4 +1,4 @@
-import { Clock3, KeyRound, Timer } from 'lucide-react';
+import { BriefcaseBusiness, Clock3, KeyRound, Timer } from 'lucide-react';
 import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { ROUTES } from '@/lib/routes';
 import type { ToolDefinition } from '@/types/tool';
@@ -7,6 +7,7 @@ export const ToolId = {
   TIME_TRACKING: 'time-tracking',
   ACCOUNTS: 'accounts',
   WORK_TIMER: 'work-timer',
+  PROJECTS: 'projects',
 } as const;
 
 export type ToolId = (typeof ToolId)[keyof typeof ToolId];
@@ -50,6 +51,20 @@ export const TOOLS = [
     href: ROUTES.TOOLS.WORK_TIMER.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],
     navigation: [{ label: 'Timer', href: ROUTES.TOOLS.WORK_TIMER.ROOT }],
+  },
+  {
+    id: ToolId.PROJECTS,
+    name: 'Projects & Invoices',
+    description:
+      'Track one-off projects like an MVP with the hours they took and the hours billed, then invoice them.',
+    icon: BriefcaseBusiness,
+    href: ROUTES.TOOLS.PROJECTS.ROOT,
+    roles: [Role.ADMIN],
+    navigation: [
+      { label: 'Projects', href: ROUTES.TOOLS.PROJECTS.ROOT },
+      { label: 'Invoices', href: ROUTES.TOOLS.PROJECTS.INVOICES },
+      { label: 'Payment details', href: ROUTES.TOOLS.PROJECTS.PAYMENT_DETAILS },
+    ],
   },
 ] as const satisfies readonly ToolDefinition[];
 

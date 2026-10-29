@@ -8,7 +8,7 @@ vi.mock('next/server', async (importOriginal) => ({
 }));
 
 beforeEach(async () => {
-  await prisma.$executeRaw`TRUNCATE "WorkSession", "AccountAuditEvent", "Account", "TimeEntry", "TimeCategory", "ClientMember", "Client", "User" CASCADE`;
+  await prisma.$executeRaw`TRUNCATE "InvoiceLine", "Invoice", "InvoiceSequence", "PaymentProfile", "Project", "WorkSession", "AccountAuditEvent", "Account", "TimeEntry", "TimeCategory", "ClientMember", "Client", "User" CASCADE`;
 });
 
 afterAll(async () => {

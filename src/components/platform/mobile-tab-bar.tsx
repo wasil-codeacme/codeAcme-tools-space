@@ -15,6 +15,7 @@ const SHORT_TOOL_LABELS: Record<string, string> = {
   'time-tracking': 'Time',
   accounts: 'Accounts',
   'work-timer': 'Timer',
+  projects: 'Projects',
 };
 
 function isActive(pathname: string, href: string): boolean {

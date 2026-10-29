@@ -51,6 +51,8 @@ model Client {
   categories  TimeCategory[]
   timeEntries TimeEntry[]
   accounts    Account[]
+  projects    Project[]
+  invoices    Invoice[]
   workSessions WorkSession[]
 
   @@index([isArchived])
@@ -227,4 +229,90 @@ model UserToolAccess {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, toolId])
+}
+
+enum ProjectStatus {
+  ACTIVE
+  COMPLETED
+}
+
+// A piece of work outside the monthly retainer, e.g. a Booking MVP. Actual time is what it really
+// took (often less, thanks to AI); billed time is what the client is told and invoiced for.
+model Project {
+  id            String        @id @default(cuid())
+  clientId      String
+  name          String        @db.VarChar(255)
+  description   String?       @db.Text
+  status        ProjectStatus @default(ACTIVE)
+  actualMinutes Int?
+  billedMinutes Int?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  client   Client    @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  invoices Invoice[]
+
+  @@unique([clientId, name])
+}
+
+// Saved "pay us here" details (bank, Wise, ...) that an invoice copies when it is created.
+model PaymentProfile {
+  id          String   @id @default(cuid())
+  label       String   @db.VarChar(255)
+  details     String   @db.Text
+  paymentLink String?  @db.VarChar(2048)
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  // INV-2026-001: sequential per calendar year of the issue date.
+  number         String        @unique @db.VarChar(32)
+  clientId       String
+  projectId      String?
+  issueDate      DateTime      @db.Date
+  dueDate        DateTime      @db.Date
+  currency       String        @default("USD") @db.VarChar(3)
+  // Payment details are copied, so editing a saved profile never changes a sent invoice.
+  paymentDetails String        @db.Text
+  paymentLink    String?       @db.VarChar(2048)
+  terms          String?       @db.Text
+  notes          String?       @db.Text
+  status         InvoiceStatus @default(DRAFT)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  client  Client        @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  project Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  lines   InvoiceLine[]
+
+  @@index([clientId])
+}
+
+model InvoiceLine {
+  id          String @id @default(cuid())
+  invoiceId   String
+  description String @db.VarChar(500)
+  minutes     Int
+  // Hourly rate in cents, so money never goes through floating point.
+  rateCents   Int
+  sortOrder   Int
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+}
+
+// The last invoice number used per year; bumped inside the transaction that creates the invoice.
+model InvoiceSequence {
+  year       Int @id
+  lastNumber Int
 }

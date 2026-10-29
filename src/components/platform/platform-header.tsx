@@ -27,6 +27,11 @@ const STATIC_CRUMBS: Record<string, string> = {
   [ROUTES.ADMIN.TEAM]: 'Team',
 };
 
+// Last crumb for pages below a tab that are not a record's detail page.
+const PAGE_CRUMBS: Record<string, string> = {
+  [ROUTES.TOOLS.PROJECTS.NEW_INVOICE]: 'New invoice',
+};
+
 // Breadcrumbs come from the URL and the tool registry, so new tools get them for free.
 function crumbsFor(pathname: string): Crumb[] {
   const crumbs: Crumb[] = [{ label: 'Home', href: ROUTES.HOME }];
@@ -45,7 +50,7 @@ function crumbsFor(pathname: string): Crumb[] {
   if (section) {
     crumbs.push({ label: section.label, href: section.href });
     if (pathname !== section.href) {
-      crumbs.push({ label: 'Details', href: pathname });
+      crumbs.push({ label: PAGE_CRUMBS[pathname] ?? 'Details', href: pathname });
     }
   }
   return crumbs;

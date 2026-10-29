@@ -56,6 +56,13 @@ export class AdminHasAllToolsError extends Error {
   }
 }
 
+export class ProjectNameTakenError extends Error {
+  constructor() {
+    super('Project name already used for this client');
+    this.name = 'ProjectNameTakenError';
+  }
+}
+
 export class ClientNameTakenError extends Error {
   constructor() {
     super('Client name already in use');
@@ -101,6 +108,7 @@ const ERROR_MESSAGES = new Map<string, string>([
   ['InvalidCurrentPasswordError', MESSAGES.AUTH.CURRENT_PASSWORD_WRONG],
   ['InvalidResetTokenError', MESSAGES.AUTH.RESET_LINK_INVALID],
   ['AdminHasAllToolsError', MESSAGES.USER.ADMIN_HAS_ALL_TOOLS],
+  ['ProjectNameTakenError', MESSAGES.PROJECT.NAME_TAKEN],
   ['ClientNameTakenError', MESSAGES.CLIENT.NAME_TAKEN],
   ['ArchivedClientError', MESSAGES.CLIENT.ARCHIVED],
   ['CategoryNameTakenError', MESSAGES.CATEGORY.NAME_TAKEN],

@@ -1,6 +1,7 @@
 const TIME_TRACKING_ROOT = '/tools/time-tracking';
 const ACCOUNTS_ROOT = '/tools/accounts';
 const WORK_TIMER_ROOT = '/tools/work-timer';
+const PROJECTS_ROOT = '/tools/projects';
 
 export const ROUTES = {
   HOME: '/',
@@ -28,11 +29,20 @@ export const ROUTES = {
     WORK_TIMER: {
       ROOT: WORK_TIMER_ROOT,
     },
+    PROJECTS: {
+      ROOT: PROJECTS_ROOT,
+      INVOICES: `${PROJECTS_ROOT}/invoices`,
+      NEW_INVOICE: `${PROJECTS_ROOT}/invoices/new`,
+      PAYMENT_DETAILS: `${PROJECTS_ROOT}/payment-details`,
+    },
   },
   API: {
     HEALTH: '/api/health',
     TIME_TRACKING: {
       REPORT_EXPORT: '/api/tools/time-tracking/reports/export',
+    },
+    PROJECTS: {
+      INVOICE_PDF: (invoiceId: string) => `/api/tools/projects/invoices/${invoiceId}/pdf`,
     },
   },
 } as const;

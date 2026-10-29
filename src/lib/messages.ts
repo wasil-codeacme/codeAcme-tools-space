@@ -99,4 +99,22 @@ export const MESSAGES = {
     NEEDS_REVIEW: (count: number) =>
       `${count} ${count === 1 ? 'entry is' : 'entries are'} marked "needs review" in this period.`,
   },
+  PROJECT: {
+    CREATE_SUCCESS: 'Project added.',
+    UPDATE_SUCCESS: 'Project updated.',
+    SAVE_ERROR: 'Could not save the project.',
+    NAME_TAKEN: 'This client already has a project with that name.',
+  },
+  PAYMENT_PROFILE: {
+    SAVE_SUCCESS: 'Payment details saved.',
+    SAVE_ERROR: 'Could not save the payment details.',
+    DELETE_SUCCESS: 'Payment details removed.',
+    DELETE_ERROR: 'Could not remove the payment details.',
+  },
+  INVOICE: {
+    CREATE_SUCCESS: (number: string) => `Invoice ${number} created.`,
+    CREATE_ERROR: 'Could not create the invoice.',
+    STATUS_SUCCESS: 'Invoice updated.',
+    STATUS_ERROR: 'Could not update the invoice.',
+  },
 } as const;
