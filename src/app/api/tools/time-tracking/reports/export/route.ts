@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
       { status: HTTP_STATUS.UNAUTHORIZED },
     );
   }
-  if (actor.role !== Role.ADMIN || !canUseTool(actor.role, ToolId.TIME_TRACKING)) {
+  if (actor.role !== Role.ADMIN || !canUseTool(actor, ToolId.TIME_TRACKING)) {
     return Response.json({ error: MESSAGES.GENERIC.FORBIDDEN }, { status: HTTP_STATUS.FORBIDDEN });
   }
   const parsed = reportExportQuerySchema.safeParse(

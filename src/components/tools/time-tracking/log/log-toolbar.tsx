@@ -19,6 +19,7 @@ interface LogToolbarProps {
   members: readonly ClientMemberView[];
   selectedMemberId: string | null;
   isAdmin: boolean;
+  canEdit: boolean;
   onClientChange: (clientId: string) => void;
   onMemberChange: (memberId: string | null) => void;
   onPaste: () => void;
@@ -30,6 +31,7 @@ export function LogToolbar({
   members,
   selectedMemberId,
   isAdmin,
+  canEdit,
   onClientChange,
   onMemberChange,
   onPaste,
@@ -76,10 +78,12 @@ export function LogToolbar({
           </Select>
         )}
       </div>
-      <Button variant="outline" onClick={onPaste} className="bg-card w-full sm:w-auto">
-        <ClipboardPaste />
-        Paste from notes
-      </Button>
+      {canEdit && (
+        <Button variant="outline" onClick={onPaste} className="bg-card w-full sm:w-auto">
+          <ClipboardPaste />
+          Paste from notes
+        </Button>
+      )}
     </div>
   );
 }

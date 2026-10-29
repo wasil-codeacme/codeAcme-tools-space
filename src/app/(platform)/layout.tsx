@@ -10,8 +10,10 @@ async function SignedInSidebar() {
   const user = await requireUser();
   return (
     <>
-      <AppSidebar user={{ name: user.name, email: user.email, role: user.role }} />
-      <MobileTabBar role={user.role} />
+      <AppSidebar
+        user={{ name: user.name, email: user.email, role: user.role, toolAccess: user.toolAccess }}
+      />
+      <MobileTabBar user={{ role: user.role, toolAccess: user.toolAccess }} />
     </>
   );
 }

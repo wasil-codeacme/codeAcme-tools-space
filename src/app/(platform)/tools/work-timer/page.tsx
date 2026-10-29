@@ -6,8 +6,8 @@ import {
 } from '@/components/tools/work-timer/skeletons';
 import { SessionHistory } from '@/components/tools/work-timer/session-history';
 import { TimerPanel } from '@/components/tools/work-timer/timer-panel';
-import { ToolId } from '@/config/tools';
-import { Role } from '@/generated/prisma/enums';
+import { ToolId, canUseTool } from '@/config/tools';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { toHistoryItems } from '@/lib/work-timer/session-history';
 import { requireToolAccess } from '@/server/auth/guards';
 import { listAccessibleClients } from '@/server/policies/client-access.policy';
@@ -44,7 +44,9 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
 
   return (
     <div className="space-y-6">
-      <TimerPanel userId={actor.id} clients={clientOptions} legacyRunning={running} />
+      {canUseTool(actor, ToolId.WORK_TIMER, ToolAccessLevel.EDIT) && (
+        <TimerPanel userId={actor.id} clients={clientOptions} legacyRunning={running} />
+      )}
       <SessionHistory
         items={toHistoryItems(sessions, timeZone)}
         todayKey={today}

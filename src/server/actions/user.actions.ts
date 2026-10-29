@@ -7,6 +7,7 @@ import * as userService from '@/server/services/user.service';
 import {
   createUserSchema,
   resetUserPasswordSchema,
+  setToolAccessSchema,
   setUserActiveSchema,
   updateUserSchema,
 } from '@/server/validators/user.schema';
@@ -41,4 +42,12 @@ export const resetUserPassword = writeAction({
   fallback: MESSAGES.USER.UPDATE_ERROR,
   logMessage: 'Reset team member password failed',
   run: (input, actor) => userService.resetUserPassword(actor, input),
+});
+
+export const setToolAccess = writeAction({
+  input: setToolAccessSchema,
+  requireAdmin: true,
+  fallback: MESSAGES.USER.ACCESS_ERROR,
+  logMessage: 'Set tool access failed',
+  run: (input, actor) => userService.setToolAccess(actor, input),
 });

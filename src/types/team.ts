@@ -1,3 +1,4 @@
+import type { ToolAccess } from '@/config/tools';
 import type { Role } from '@/generated/prisma/enums';
 
 export interface TeamMemberRow {
@@ -6,4 +7,5 @@ export interface TeamMemberRow {
   email: string;
   role: Role;
   isActive: boolean;
+  toolAccess: ToolAccess;
 }

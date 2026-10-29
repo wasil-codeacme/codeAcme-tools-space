@@ -1,3 +1,4 @@
+import type { ToolAccess } from '@/config/tools';
 import type { Role } from '@/generated/prisma/enums';
 
 export interface SessionPayload {
@@ -13,6 +14,7 @@ export interface SessionUser {
   name: string;
   email: string;
   role: Role;
+  toolAccess: ToolAccess;
 }
 
 export type Actor = Pick<SessionUser, 'id' | 'role'>;

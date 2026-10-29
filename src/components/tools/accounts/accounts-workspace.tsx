@@ -23,6 +23,8 @@ interface AccountsWorkspaceProps {
   accounts: AccountView[];
   clients: { id: string; name: string }[];
   isAdmin: boolean;
+  // View-only members see what exists and where it lives, but cannot reveal or change secrets.
+  canEdit: boolean;
   showArchived: boolean;
   initialScope: string;
   initialSearch: string;
@@ -57,7 +59,7 @@ function groupByOwner(accounts: AccountView[]): [string, AccountView[]][] {
 }
 
 export function AccountsWorkspace(props: AccountsWorkspaceProps) {
-  const { accounts, clients, isAdmin } = props;
+  const { accounts, clients, isAdmin, canEdit } = props;
   const [scope, setScope] = useState(props.initialScope);
   const [search, setSearch] = useState(props.initialSearch);
   const [dialog, setDialog] = useState<DialogState>(null);
@@ -70,6 +72,7 @@ export function AccountsWorkspace(props: AccountsWorkspaceProps) {
       <AccountsToolbar
         clients={clients}
         isAdmin={isAdmin}
+        canEdit={canEdit}
         scope={scope}
         search={search}
         showArchived={props.showArchived}
@@ -116,6 +119,7 @@ export function AccountsWorkspace(props: AccountsWorkspaceProps) {
                     key={account.id}
                     account={account}
                     isAdmin={isAdmin}
+                    canEdit={canEdit}
                     onEdit={() => setDialog({ kind: 'edit', account })}
                   />
                 ))}

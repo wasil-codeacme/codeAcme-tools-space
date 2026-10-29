@@ -31,6 +31,7 @@ import { SecretField, type AccountView } from '@/types/accounts';
 interface AccountRowProps {
   account: AccountView;
   isAdmin: boolean;
+  canEdit: boolean;
   onEdit: () => void;
 }
 
@@ -38,7 +39,7 @@ function hostOf(url: string): string {
   return new URL(url).host.replace(/^www\./, '');
 }
 
-export function AccountRow({ account, isAdmin, onEdit }: AccountRowProps) {
+export function AccountRow({ account, isAdmin, canEdit, onEdit }: AccountRowProps) {
   const [isPending, startTransition] = useTransition();
 
   function toggleArchived() {
@@ -128,47 +129,51 @@ export function AccountRow({ account, isAdmin, onEdit }: AccountRowProps) {
           accountId={account.id}
           field={SecretField.SECRET}
           hasSecret={account.hasSecret}
+          canReveal={canEdit}
           emptyLabel="No password"
-          onAdd={onEdit}
+          onAdd={canEdit ? onEdit : undefined}
         />
         {account.hasSecureNotes && (
           <SecretControl
             accountId={account.id}
             field={SecretField.SECURE_NOTES}
             hasSecret
+            canReveal={canEdit}
             label="Secure notes"
           />
         )}
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="max-md:absolute max-md:top-3 max-md:right-2"
-            aria-label={`Actions for ${account.name}`}
-            disabled={isPending}
-          >
-            <MoreHorizontal />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={onEdit}>
-            <Pencil />
-            Edit
-          </DropdownMenuItem>
-          {isAdmin && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={toggleArchived}>
-                {account.isArchived ? <ArchiveRestore /> : <Archive />}
-                {account.isArchived ? 'Restore' : 'Archive'}
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {canEdit && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="max-md:absolute max-md:top-3 max-md:right-2"
+              aria-label={`Actions for ${account.name}`}
+              disabled={isPending}
+            >
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={onEdit}>
+              <Pencil />
+              Edit
+            </DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={toggleArchived}>
+                  {account.isArchived ? <ArchiveRestore /> : <Archive />}
+                  {account.isArchived ? 'Restore' : 'Archive'}
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </li>
   );
 }

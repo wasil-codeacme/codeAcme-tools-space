@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { Role } from '@/generated/prisma/enums';
-import { EmailTakenError, LastAdminError, SelfActionError } from '@/server/errors';
-import { createUser, setUserActive, updateUser } from '@/server/services/user.service';
+import { ToolId } from '@/config/tools';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
+import { prisma } from '@/lib/prisma';
+import {
+  AdminHasAllToolsError,
+  EmailTakenError,
+  LastAdminError,
+  SelfActionError,
+} from '@/server/errors';
+import {
+  createUser,
+  setToolAccess,
+  setUserActive,
+  updateUser,
+} from '@/server/services/user.service';
 import { asActor, createTestUser } from '@/test/factories';
 import { createFailingMailer, createRecordingMailer } from '@/test/fake-mailer';
 
@@ -62,5 +74,50 @@ describe('team management guards', () => {
       password: 'temporary-password-123',
     });
     expect(user.email).toBe('offline@example.com');
+  });
+
+  it('starts new members on time tracking and the timer, not secrets', async () => {
+    const member = await createUser(createRecordingMailer(), {
+      name: 'New Member',
+      email: 'new-member@example.com',
+      role: Role.MEMBER,
+      password: 'temporary-password-123',
+    });
+    const grants = await prisma.userToolAccess.findMany({
+      where: { userId: member.id },
+      orderBy: { toolId: 'asc' },
+    });
+    expect(grants.map(({ toolId, level }) => ({ toolId, level }))).toEqual([
+      { toolId: ToolId.TIME_TRACKING, level: ToolAccessLevel.EDIT },
+      { toolId: ToolId.WORK_TIMER, level: ToolAccessLevel.EDIT },
+    ]);
+  });
+
+  it('grants, changes and removes a tool for a member', async () => {
+    const [admin, member] = await Promise.all([createTestUser(Role.ADMIN), createTestUser()]);
+    const grant = (level: ToolAccessLevel | 'NONE') =>
+      setToolAccess(asActor(admin), { userId: member.id, toolId: ToolId.ACCOUNTS, level });
+
+    await grant(ToolAccessLevel.VIEW);
+    await grant(ToolAccessLevel.EDIT);
+    expect(await prisma.userToolAccess.findMany({ where: { userId: member.id } })).toMatchObject([
+      { toolId: ToolId.ACCOUNTS, level: ToolAccessLevel.EDIT },
+    ]);
+    await grant('NONE');
+    expect(await prisma.userToolAccess.count({ where: { userId: member.id } })).toBe(0);
+  });
+
+  it('does not store grants for admins, who already have every tool', async () => {
+    const [admin, otherAdmin] = await Promise.all([
+      createTestUser(Role.ADMIN),
+      createTestUser(Role.ADMIN),
+    ]);
+    await expect(
+      setToolAccess(asActor(admin), {
+        userId: otherAdmin.id,
+        toolId: ToolId.ACCOUNTS,
+        level: ToolAccessLevel.VIEW,
+      }),
+    ).rejects.toBeInstanceOf(AdminHasAllToolsError);
   });
 });

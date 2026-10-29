@@ -2,6 +2,7 @@ import 'server-only';
 import { cookies } from 'next/headers';
 import { connection } from 'next/server';
 import { cache } from 'react';
+import { type ToolAccess, isToolId } from '@/config/tools';
 import { SESSION_COOKIE } from '@/lib/constants';
 import { verifySession } from '@/lib/session';
 import { userRepository } from '@/server/repositories/user.repository';
@@ -18,9 +19,16 @@ export const getSessionUser = cache(async (): Promise<SessionUser | null> => {
   if (!payload) {
     return null;
   }
-  const user = await userRepository.findById(payload.sub);
+  const user = await userRepository.findSessionUser(payload.sub);
   if (!user || !user.isActive || user.sessionVersion !== payload.ver) {
     return null;
   }
-  return { id: user.id, name: user.name, email: user.email, role: user.role };
+  const toolAccess: ToolAccess = {};
+  for (const grant of user.toolAccess) {
+    // Rows for tools that were since removed from the registry are ignored.
+    if (isToolId(grant.toolId)) {
+      toolAccess[grant.toolId] = grant.level;
+    }
+  }
+  return { id: user.id, name: user.name, email: user.email, role: user.role, toolAccess };
 });

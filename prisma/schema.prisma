@@ -30,6 +30,7 @@ model User {
   updatedAccounts   Account[]           @relation("AccountUpdatedBy")
   accountEvents     AccountAuditEvent[]
   passwordResets    PasswordResetToken[]
+  toolAccess        UserToolAccess[]
   workSessions      WorkSession[]
 
   @@index([role])
@@ -206,4 +207,24 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+enum ToolAccessLevel {
+  VIEW
+  EDIT
+}
+
+// Which tools a member may open, and whether they may change things there. Admins have every tool
+// implicitly and have no rows. toolId matches an id in src/config/tools.ts.
+model UserToolAccess {
+  id        String          @id @default(cuid())
+  userId    String
+  toolId    String          @db.VarChar(64)
+  level     ToolAccessLevel
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, toolId])
 }

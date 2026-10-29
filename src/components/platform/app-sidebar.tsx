@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SITE } from '@/config/site';
-import { toolsForRole } from '@/config/tools';
+import { toolsForUser } from '@/config/tools';
 import { Role } from '@/generated/prisma/enums';
 import { ROUTES } from '@/lib/routes';
 import type { SessionUser } from '@/types/auth';
@@ -53,9 +53,13 @@ function SidebarBrand() {
   );
 }
 
-export function AppSidebar({ user }: { user: Pick<SessionUser, 'name' | 'email' | 'role'> }) {
+export function AppSidebar({
+  user,
+}: {
+  user: Pick<SessionUser, 'name' | 'email' | 'role' | 'toolAccess'>;
+}) {
   const pathname = usePathname();
-  const tools = toolsForRole(user.role);
+  const tools = toolsForUser(user);
 
   return (
     <Sidebar collapsible="icon">

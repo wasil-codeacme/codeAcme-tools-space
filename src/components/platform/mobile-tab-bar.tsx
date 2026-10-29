@@ -6,8 +6,7 @@ import { usePathname } from 'next/navigation';
 import { House, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSidebar } from '@/components/ui/sidebar';
-import { toolsForRole } from '@/config/tools';
-import type { Role } from '@/generated/prisma/enums';
+import { type ToolUser, toolsForUser } from '@/config/tools';
 import { ROUTES } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 
@@ -51,7 +50,7 @@ function Tab({ href, label, icon, active }: TabProps) {
 
 // Phone navigation: the platform's tools one tap away at the bottom of the screen. Everything else
 // (team, account, theme, sign out) stays in the sidebar, opened by "More".
-export function MobileTabBar({ role }: { role: Role }) {
+export function MobileTabBar({ user }: { user: ToolUser }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
@@ -67,7 +66,7 @@ export function MobileTabBar({ role }: { role: Role }) {
           icon={<House />}
           active={isActive(pathname, ROUTES.HOME)}
         />
-        {toolsForRole(role).map((tool) => (
+        {toolsForUser(user).map((tool) => (
           <Tab
             key={tool.id}
             href={tool.href}

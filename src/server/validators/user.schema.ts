@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { Role } from '@/generated/prisma/enums';
+import { grantableTools } from '@/config/tools';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { MAX_NAME_LENGTH } from '@/lib/constants';
 import { passwordSchema } from '@/server/validators/auth.schema';
 import { idSchema } from '@/server/validators/shared.schema';
@@ -30,7 +31,19 @@ export const resetUserPasswordSchema = z.object({
   password: passwordSchema,
 });
 
+// "NONE" removes the grant; the database only stores tools a member can open.
+export const NO_TOOL_ACCESS = 'NONE';
+
+const grantableToolIds = grantableTools().map((tool) => tool.id) as [string, ...string[]];
+
+export const setToolAccessSchema = z.object({
+  userId: idSchema,
+  toolId: z.enum(grantableToolIds),
+  level: z.enum([NO_TOOL_ACCESS, ToolAccessLevel.VIEW, ToolAccessLevel.EDIT]),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type SetUserActiveInput = z.infer<typeof setUserActiveSchema>;
 export type ResetUserPasswordInput = z.infer<typeof resetUserPasswordSchema>;
+export type SetToolAccessInput = z.infer<typeof setToolAccessSchema>;

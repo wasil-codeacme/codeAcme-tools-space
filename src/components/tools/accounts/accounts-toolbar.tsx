@@ -17,6 +17,7 @@ import { ALL_SCOPES, INTERNAL_SCOPE, INTERNAL_SCOPE_LABEL } from '@/lib/accounts
 interface AccountsToolbarProps {
   clients: { id: string; name: string }[];
   isAdmin: boolean;
+  canEdit: boolean;
   scope: string;
   search: string;
   showArchived: boolean;
@@ -75,16 +76,18 @@ export function AccountsToolbar(props: AccountsToolbarProps) {
           </div>
         )}
       </div>
-      <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
-        <Button variant="outline" className="bg-card" onClick={props.onImport}>
-          <ClipboardPaste />
-          Paste from sheet
-        </Button>
-        <Button onClick={props.onCreate}>
-          <Plus />
-          New account
-        </Button>
-      </div>
+      {props.canEdit && (
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+          <Button variant="outline" className="bg-card" onClick={props.onImport}>
+            <ClipboardPaste />
+            Paste from sheet
+          </Button>
+          <Button onClick={props.onCreate}>
+            <Plus />
+            New account
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

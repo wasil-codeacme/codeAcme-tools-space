@@ -1,5 +1,5 @@
 import { Clock3, KeyRound, Timer } from 'lucide-react';
-import { Role } from '@/generated/prisma/enums';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { ROUTES } from '@/lib/routes';
 import type { ToolDefinition } from '@/types/tool';
 
@@ -53,12 +53,45 @@ export const TOOLS = [
   },
 ] as const satisfies readonly ToolDefinition[];
 
-export function toolsForRole(role: Role): ToolDefinition[] {
-  return TOOLS.filter((tool) => (tool.roles as readonly Role[]).includes(role));
+export type ToolAccess = Partial<Record<ToolId, ToolAccessLevel>>;
+
+export interface ToolUser {
+  role: Role;
+  toolAccess: ToolAccess;
 }
 
-export function canUseTool(role: Role, toolId: ToolId): boolean {
-  return toolsForRole(role).some((tool) => tool.id === toolId);
+export function isToolId(value: string): value is ToolId {
+  return (Object.values(ToolId) as string[]).includes(value);
+}
+
+// A tool must allow the user's role; admins then get full access, members what they were granted.
+export function toolAccessLevel(user: ToolUser, toolId: ToolId): ToolAccessLevel | null {
+  const tool = getTool(toolId);
+  if (!(tool.roles as readonly Role[]).includes(user.role)) {
+    return null;
+  }
+  if (user.role === Role.ADMIN) {
+    return ToolAccessLevel.EDIT;
+  }
+  return user.toolAccess[toolId] ?? null;
+}
+
+export function canUseTool(
+  user: ToolUser,
+  toolId: ToolId,
+  needed: ToolAccessLevel = ToolAccessLevel.VIEW,
+): boolean {
+  const level = toolAccessLevel(user, toolId);
+  return level !== null && (needed === ToolAccessLevel.VIEW || level === ToolAccessLevel.EDIT);
+}
+
+export function toolsForUser(user: ToolUser): ToolDefinition[] {
+  return TOOLS.filter((tool) => canUseTool(user, tool.id));
+}
+
+// Tools an admin can hand out to members on the Team page.
+export function grantableTools(): ToolDefinition[] {
+  return TOOLS.filter((tool) => (tool.roles as readonly Role[]).includes(Role.MEMBER));
 }
 
 export function getTool(toolId: ToolId): ToolDefinition {

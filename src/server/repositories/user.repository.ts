@@ -8,11 +8,28 @@ const PUBLIC_USER_FIELDS = {
   role: true,
   isActive: true,
   createdAt: true,
+  toolAccess: { select: { toolId: true, level: true } },
 } as const;
 
 export const userRepository = {
   findById(id: string) {
     return prisma.user.findUnique({ where: { id } });
+  },
+
+  // One query for everything a request needs to authorise the signed-in user.
+  findSessionUser(id: string) {
+    return prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        isActive: true,
+        sessionVersion: true,
+        toolAccess: { select: { toolId: true, level: true } },
+      },
+    });
   },
 
   findByEmail(email: string) {

@@ -2,7 +2,7 @@ import 'server-only';
 import { refresh } from 'next/cache';
 import { type ZodType, z } from 'zod';
 import { type ToolId, canUseTool } from '@/config/tools';
-import { Role } from '@/generated/prisma/enums';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { logger } from '@/lib/logger';
 import { MESSAGES } from '@/lib/messages';
 import { getSessionUser } from '@/server/auth/session-context';
@@ -20,6 +20,8 @@ interface WriteActionConfig<Input, Output> {
   logMessage: string;
   requireAdmin?: boolean;
   tool?: ToolId;
+  // Writes need edit access by default; view-only members can still read the tool.
+  toolLevel?: ToolAccessLevel;
 }
 
 export function toFieldErrors(error: z.ZodError): Record<string, string[]> {
@@ -46,7 +48,7 @@ function authorize<Input, Output>(
   if (config.requireAdmin && actor.role !== Role.ADMIN) {
     return MESSAGES.GENERIC.FORBIDDEN;
   }
-  if (config.tool && !canUseTool(actor.role, config.tool)) {
+  if (config.tool && !canUseTool(actor, config.tool, config.toolLevel ?? ToolAccessLevel.EDIT)) {
     return MESSAGES.GENERIC.FORBIDDEN;
   }
   return null;

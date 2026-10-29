@@ -41,6 +41,7 @@ interface LogWorkspaceProps {
   todayKey: DateKey;
   currentUser: { id: string; name: string };
   isAdmin: boolean;
+  canEdit: boolean;
 }
 
 function minutesByDay(entries: readonly TimeEntryView[]): Map<DateKey, number> {
@@ -52,7 +53,7 @@ function minutesByDay(entries: readonly TimeEntryView[]): Map<DateKey, number> {
 }
 
 export function LogWorkspace(props: LogWorkspaceProps) {
-  const { client, view, todayKey, currentUser, isAdmin } = props;
+  const { client, view, todayKey, currentUser, isAdmin, canEdit } = props;
   const [selectedDate, setSelectedDate] = useState(props.initialDate);
   const [isPasteOpen, setPasteOpen] = useState(false);
   const durationInputRef = useRef<HTMLInputElement | null>(null);
@@ -82,7 +83,7 @@ export function LogWorkspace(props: LogWorkspaceProps) {
   useKeyboardShortcuts({
     n: () => durationInputRef.current?.focus(),
     t: () => goToDate(todayKey),
-    p: () => setPasteOpen(true),
+    p: () => canEdit && setPasteOpen(true),
     ArrowLeft: () => goToDate(addDaysToKey(selectedDate, -1)),
     ArrowRight: () => goToDate(addDaysToKey(selectedDate, 1)),
   });
@@ -95,6 +96,7 @@ export function LogWorkspace(props: LogWorkspaceProps) {
         members={props.members}
         selectedMemberId={props.selectedMemberId}
         isAdmin={isAdmin}
+        canEdit={canEdit}
         onClientChange={changeClient}
         onMemberChange={(memberId) => navigate({ member: memberId })}
         onPaste={() => setPasteOpen(true)}
@@ -131,7 +133,8 @@ export function LogWorkspace(props: LogWorkspaceProps) {
               categories: props.categories,
             }}
             categories={props.categories}
-            canModify={(entry) => isAdmin || entry.userId === currentUser.id}
+            canModify={(entry) => canEdit && (isAdmin || entry.userId === currentUser.id)}
+            canCreate={canEdit}
             showAuthor={hasSeveralAuthors}
             durationInputRef={durationInputRef}
             onCreate={mutations.create}

@@ -4,8 +4,8 @@ import { Suspense } from 'react';
 import { LogSkeleton } from '@/components/tools/time-tracking/log/log-skeleton';
 import { LogWorkspace } from '@/components/tools/time-tracking/log/log-workspace';
 import { NoClientsState } from '@/components/tools/time-tracking/no-clients-state';
-import { ToolId } from '@/config/tools';
-import { Role } from '@/generated/prisma/enums';
+import { ToolId, canUseTool } from '@/config/tools';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { LAST_CLIENT_COOKIE } from '@/lib/constants';
 import { isDateKey } from '@/lib/time-tracking/date-key';
 import { requireToolAccess } from '@/server/auth/guards';
@@ -61,6 +61,7 @@ async function LogContent({ searchParams }: { searchParams: SearchParams }) {
       todayKey={today}
       currentUser={{ id: actor.id, name: actor.name }}
       isAdmin={isAdmin}
+      canEdit={canUseTool(actor, ToolId.TIME_TRACKING, ToolAccessLevel.EDIT)}
     />
   );
 }

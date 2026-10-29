@@ -16,6 +16,8 @@ interface SecretControlProps {
   accountId: string;
   field: SecretField;
   hasSecret: boolean;
+  // View-only members can see that a secret exists without being able to read it.
+  canReveal?: boolean;
   label?: string;
   emptyLabel?: string;
   onAdd?: () => void;
@@ -26,6 +28,7 @@ export function SecretControl({
   accountId,
   field,
   hasSecret,
+  canReveal = true,
   label,
   emptyLabel,
   onAdd,
@@ -64,6 +67,16 @@ export function SecretControl({
         {emptyLabel ?? 'Add'}
       </Button>
     ) : null;
+  }
+
+  if (!canReveal) {
+    return (
+      <div className="text-muted-foreground flex min-w-0 items-center gap-1 text-xs">
+        {label && <span className="shrink-0">{label}:</span>}
+        <span className="font-figures">{MASK}</span>
+        <span>stored</span>
+      </div>
+    );
   }
 
   return (

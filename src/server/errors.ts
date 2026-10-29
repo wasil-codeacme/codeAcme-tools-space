@@ -49,6 +49,13 @@ export class InvalidResetTokenError extends Error {
   }
 }
 
+export class AdminHasAllToolsError extends Error {
+  constructor() {
+    super('Admins have every tool');
+    this.name = 'AdminHasAllToolsError';
+  }
+}
+
 export class ClientNameTakenError extends Error {
   constructor() {
     super('Client name already in use');
@@ -93,6 +100,7 @@ const ERROR_MESSAGES = new Map<string, string>([
   ['SelfActionError', MESSAGES.USER.SELF_ACTION],
   ['InvalidCurrentPasswordError', MESSAGES.AUTH.CURRENT_PASSWORD_WRONG],
   ['InvalidResetTokenError', MESSAGES.AUTH.RESET_LINK_INVALID],
+  ['AdminHasAllToolsError', MESSAGES.USER.ADMIN_HAS_ALL_TOOLS],
   ['ClientNameTakenError', MESSAGES.CLIENT.NAME_TAKEN],
   ['ArchivedClientError', MESSAGES.CLIENT.ARCHIVED],
   ['CategoryNameTakenError', MESSAGES.CATEGORY.NAME_TAKEN],

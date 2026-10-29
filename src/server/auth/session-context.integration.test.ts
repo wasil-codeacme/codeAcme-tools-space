@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Role } from '@/generated/prisma/enums';
+import { ToolId } from '@/config/tools';
+import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { SESSION_COOKIE } from '@/lib/constants';
 import { signSession } from '@/lib/session';
 import { getSessionUser } from '@/server/auth/session-context';
-import { resetUserPassword, setUserActive } from '@/server/services/user.service';
+import { resetUserPassword, setToolAccess, setUserActive } from '@/server/services/user.service';
 import { asActor, createTestUser } from '@/test/factories';
 
 const cookieJar = new Map<string, string>();
@@ -50,5 +51,20 @@ describe('getSessionUser', () => {
   it('ignores a forged cookie', async () => {
     cookieJar.set(SESSION_COOKIE, 'eyJzdWIiOiJ4In0.not-a-signature');
     expect(await getSessionUser()).toBeNull();
+  });
+
+  it('picks up tool access changes on the next request', async () => {
+    const [admin, member] = await Promise.all([createTestUser(Role.ADMIN), createTestUser()]);
+    await signInAs(member);
+    expect((await getSessionUser())?.toolAccess).toEqual({});
+
+    await setToolAccess(asActor(admin), {
+      userId: member.id,
+      toolId: ToolId.ACCOUNTS,
+      level: ToolAccessLevel.VIEW,
+    });
+    expect((await getSessionUser())?.toolAccess).toEqual({
+      [ToolId.ACCOUNTS]: ToolAccessLevel.VIEW,
+    });
   });
 });

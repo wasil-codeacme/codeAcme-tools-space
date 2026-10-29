@@ -18,6 +18,8 @@ interface DayPanelProps {
   context: DraftContext;
   categories: CategoryOption[];
   canModify: (entry: TimeEntryView) => boolean;
+  // View-only members see the log without the quick-add row.
+  canCreate: boolean;
   showAuthor: boolean;
   durationInputRef: RefObject<HTMLInputElement | null>;
   onCreate: (draft: TimeEntryView) => Promise<boolean>;
@@ -43,6 +45,7 @@ export function DayPanel({
   context,
   categories,
   canModify,
+  canCreate,
   showAuthor,
   durationInputRef,
   onCreate,
@@ -107,14 +110,16 @@ export function DayPanel({
         )}
       </div>
 
-      <footer className="bg-muted/30 border-t p-3">
-        <EntryForm
-          mode="create"
-          categories={categoryChoices(categories)}
-          durationInputRef={durationInputRef}
-          onSubmit={(values) => onCreate(draftFromForm(values, context))}
-        />
-      </footer>
+      {canCreate && (
+        <footer className="bg-muted/30 border-t p-3">
+          <EntryForm
+            mode="create"
+            categories={categoryChoices(categories)}
+            durationInputRef={durationInputRef}
+            onSubmit={(values) => onCreate(draftFromForm(values, context))}
+          />
+        </footer>
+      )}
     </section>
   );
 }
