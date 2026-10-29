@@ -21,7 +21,7 @@ import type { WorkSessionView } from '@/types/work-timer';
 
 export const NO_CLIENT = 'none';
 const SECONDS_PER_MINUTE = 60;
-const RING_RADIUS = 120;
+const RING_RADIUS = 132;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 interface TimerPanelProps {
@@ -50,39 +50,91 @@ function hoursAndMinutes(totalSeconds: number): string {
   return formatElapsed(totalSeconds).slice(0, 5);
 }
 
+const SECONDS_PER_DIAL = 60;
+const MAJOR_TICK_EVERY = 5;
+const DIAL_CENTER = 140;
+const DEGREES_PER_SECOND = 360 / SECONDS_PER_DIAL;
+
+// One tick of the seconds dial, drawn from the 12 o'clock position and rotated into place.
+function DialTick({
+  second,
+  isLit,
+  isCurrent,
+  tone,
+}: {
+  second: number;
+  isLit: boolean;
+  isCurrent: boolean;
+  tone: 'running' | 'paused' | 'idle';
+}) {
+  const isMajor = second % MAJOR_TICK_EVERY === 0;
+  const outer = 122;
+  const inner = isCurrent ? 104 : isMajor ? 110 : 115;
+  const litColor = tone === 'paused' ? 'var(--ring)' : 'var(--primary)';
+  return (
+    <line
+      x1={DIAL_CENTER}
+      y1={DIAL_CENTER - outer}
+      x2={DIAL_CENTER}
+      y2={DIAL_CENTER - inner}
+      transform={`rotate(${second * DEGREES_PER_SECOND} ${DIAL_CENTER} ${DIAL_CENTER})`}
+      stroke={isLit ? litColor : 'var(--border)'}
+      strokeWidth={isCurrent ? 3.5 : isMajor ? 2.5 : 1.5}
+      strokeLinecap="round"
+      className="transition-[stroke] duration-150"
+    />
+  );
+}
+
+// A stopwatch face: the digital time in the middle, a seconds dial whose ticks light up one by one
+// and reset each minute, and a thin outer ring filling toward the working day.
 function FocusRing({
   progress,
+  seconds,
   tone,
   children,
 }: {
   progress: number;
+  seconds: number;
   tone: 'running' | 'paused' | 'idle';
   children: React.ReactNode;
 }) {
+  const currentSecond = seconds % SECONDS_PER_DIAL;
   return (
     <div className="relative size-64 sm:size-72">
-      <svg viewBox="0 0 280 280" className="size-full -rotate-90" aria-hidden>
-        <circle
-          cx="140"
-          cy="140"
-          r={RING_RADIUS}
-          fill="none"
-          stroke="var(--muted)"
-          strokeWidth="14"
-        />
-        <circle
-          cx="140"
-          cy="140"
-          r={RING_RADIUS}
-          fill="none"
-          stroke={tone === 'running' ? 'var(--primary)' : 'var(--ring)'}
-          strokeOpacity={tone === 'paused' ? 0.55 : 1}
-          strokeWidth="14"
-          strokeLinecap="round"
-          strokeDasharray={RING_CIRCUMFERENCE}
-          strokeDashoffset={RING_CIRCUMFERENCE * (1 - Math.min(1, progress))}
-          className="transition-[stroke-dashoffset,stroke] duration-700 ease-out"
-        />
+      <svg viewBox="0 0 280 280" className="size-full" aria-hidden>
+        <g className="origin-center -rotate-90">
+          <circle
+            cx={DIAL_CENTER}
+            cy={DIAL_CENTER}
+            r={RING_RADIUS}
+            fill="none"
+            stroke="var(--muted)"
+            strokeWidth="4"
+          />
+          <circle
+            cx={DIAL_CENTER}
+            cy={DIAL_CENTER}
+            r={RING_RADIUS}
+            fill="none"
+            stroke={tone === 'running' ? 'var(--primary)' : 'var(--ring)'}
+            strokeOpacity={tone === 'paused' ? 0.55 : 1}
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray={RING_CIRCUMFERENCE}
+            strokeDashoffset={RING_CIRCUMFERENCE * (1 - Math.min(1, progress))}
+            className="transition-[stroke-dashoffset,stroke] duration-700 ease-out"
+          />
+        </g>
+        {Array.from({ length: SECONDS_PER_DIAL }, (_, second) => (
+          <DialTick
+            key={second}
+            second={second}
+            tone={tone}
+            isLit={tone !== 'idle' && second <= currentSecond}
+            isCurrent={tone !== 'idle' && second === currentSecond}
+          />
+        ))}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
         {children}
@@ -141,15 +193,6 @@ export function TimerPanel({
   return (
     <section className="ca-glow bg-card relative overflow-hidden rounded-3xl border px-5 py-8 sm:px-8">
       <div aria-hidden className="bg-ledger absolute inset-0 opacity-70" />
-      {timer && !paused && (
-        <div
-          aria-hidden
-          className="ca-hue-a pointer-events-none absolute -top-32 left-1/2 size-[28rem] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
-          style={{
-            background: 'radial-gradient(circle, rgba(89,17,235,0.18), rgba(89,17,235,0) 65%)',
-          }}
-        />
-      )}
       <div className="relative mx-auto flex max-w-md flex-col items-center gap-6">
         <p className="ca-eyebrow text-primary flex items-center gap-2">
           {timer && !paused && (
@@ -164,10 +207,14 @@ export function TimerPanel({
           </span>
         )}
 
-        <FocusRing progress={progress} tone={!timer ? 'idle' : paused ? 'paused' : 'running'}>
+        <FocusRing
+          progress={progress}
+          seconds={elapsedSeconds}
+          tone={!timer ? 'idle' : paused ? 'paused' : 'running'}
+        >
           <p
             className={cn(
-              'font-figures text-4xl font-medium tracking-tight tabular-nums transition-opacity sm:text-[2.6rem]',
+              'font-figures text-[2.1rem] font-medium tracking-tight tabular-nums transition-opacity sm:text-[2.4rem]',
               paused && 'opacity-50',
             )}
           >
