@@ -24,8 +24,7 @@ export const metadata: Metadata = { title: 'Time · Reports' };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 async function ReportsContent({ searchParams }: { searchParams: SearchParams }) {
-  const actor = await requireAdmin();
-  const [params, today] = await Promise.all([searchParams, getTodayKey()]);
+  const [actor, params, today] = await Promise.all([requireAdmin(), searchParams, getTodayKey()]);
   const clients = await listClientsWithUsage(actor, { monthKey: today, includeArchived: true });
   const firstClient = clients[0];
   if (!firstClient) {

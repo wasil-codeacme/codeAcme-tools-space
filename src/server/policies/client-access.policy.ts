@@ -22,11 +22,15 @@ export async function assertClientAccess(
   clientId: string,
   { allowArchived = false }: AccessOptions = {},
 ): Promise<ClientSummary> {
-  const client = await clientRepository.findById(clientId);
+  // Both lookups at once: one round trip of latency instead of two.
+  const [client, isMember] = await Promise.all([
+    clientRepository.findById(clientId),
+    isAdmin(actor) ? Promise.resolve(true) : clientMemberRepository.exists(clientId, actor.id),
+  ]);
   if (!client) {
     throw new NotFoundError('Client');
   }
-  if (!isAdmin(actor) && !(await clientMemberRepository.exists(clientId, actor.id))) {
+  if (!isMember) {
     // Same error as a missing client, so members cannot probe for client ids.
     throw new NotFoundError('Client');
   }

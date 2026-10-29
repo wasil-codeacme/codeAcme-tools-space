@@ -32,8 +32,7 @@ async function loadClient(clientId: string, actor: SessionUser) {
 }
 
 async function ClientDetail({ params }: { params: Params }) {
-  const actor = await requireAdmin();
-  const { clientId } = await params;
+  const [actor, { clientId }] = await Promise.all([requireAdmin(), params]);
   const client = await loadClient(clientId, actor);
   const [categories, members, users] = await Promise.all([
     listCategories([client.id], { includeArchived: true }),

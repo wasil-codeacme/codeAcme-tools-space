@@ -21,8 +21,7 @@ function single(value: string | string[] | undefined): string | undefined {
 }
 
 async function AccountsContent({ searchParams }: { searchParams: SearchParams }) {
-  const actor = await requireToolAccess(ToolId.ACCOUNTS);
-  const params = await searchParams;
+  const [actor, params] = await Promise.all([requireToolAccess(ToolId.ACCOUNTS), searchParams]);
   const isAdmin = actor.role === Role.ADMIN;
   const canEdit = canUseTool(actor, ToolId.ACCOUNTS, ToolAccessLevel.EDIT);
   const showArchived = isAdmin && single(params.archived) === '1';

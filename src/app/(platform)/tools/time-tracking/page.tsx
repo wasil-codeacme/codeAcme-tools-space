@@ -24,8 +24,12 @@ function single(value: string | string[] | undefined): string | undefined {
 }
 
 async function LogContent({ searchParams }: { searchParams: SearchParams }) {
-  const actor = await requireToolAccess(ToolId.TIME_TRACKING);
-  const [params, today, cookieStore] = await Promise.all([searchParams, getTodayKey(), cookies()]);
+  const [actor, params, today, cookieStore] = await Promise.all([
+    requireToolAccess(ToolId.TIME_TRACKING),
+    searchParams,
+    getTodayKey(),
+    cookies(),
+  ]);
   const clients = await listClientsWithUsage(actor, { monthKey: today });
   const isAdmin = actor.role === Role.ADMIN;
 

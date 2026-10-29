@@ -25,8 +25,11 @@ function parseYear(value: string | string[] | undefined, fallback: number): numb
 }
 
 async function OverviewContent({ searchParams }: { searchParams: SearchParams }) {
-  const actor = await requireToolAccess(ToolId.TIME_TRACKING);
-  const [params, today] = await Promise.all([searchParams, getTodayKey()]);
+  const [actor, params, today] = await Promise.all([
+    requireToolAccess(ToolId.TIME_TRACKING),
+    searchParams,
+    getTodayKey(),
+  ]);
   const clients = await listClientsWithUsage(actor, {
     monthKey: today,
     includeArchived: actor.role === Role.ADMIN,
