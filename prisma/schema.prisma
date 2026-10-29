@@ -29,6 +29,7 @@ model User {
   timeEntries       TimeEntry[]
   updatedAccounts   Account[]           @relation("AccountUpdatedBy")
   accountEvents     AccountAuditEvent[]
+  passwordResets    PasswordResetToken[]
   workSessions      WorkSession[]
 
   @@index([role])
@@ -190,4 +191,19 @@ model WorkSession {
 
   @@index([userId, startedAt])
   @@index([userId, endedAt])
+}
+
+// A single-use "forgot password" link. Only a SHA-256 hash of the token is stored, so a database
+// leak cannot be turned into working reset links.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique @db.VarChar(64)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

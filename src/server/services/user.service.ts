@@ -1,9 +1,12 @@
 import 'server-only';
 import { Role } from '@/generated/prisma/enums';
+import { welcomeEmail } from '@/lib/emails/account-emails';
 import { logger } from '@/lib/logger';
 import { hashPassword } from '@/lib/password';
 import { EmailTakenError, LastAdminError, NotFoundError, SelfActionError } from '@/server/errors';
+import type { Mailer } from '@/server/ports/mailer.port';
 import { userRepository } from '@/server/repositories/user.repository';
+import { runSideEffect } from '@/server/side-effect';
 import type { Actor } from '@/types/auth';
 import type {
   CreateUserInput,
@@ -20,7 +23,7 @@ export function listActiveUsers() {
   return userRepository.listActive();
 }
 
-export async function createUser({ name, email, role, password }: CreateUserInput) {
+export async function createUser(mailer: Mailer, { name, email, role, password }: CreateUserInput) {
   if (await userRepository.findByEmail(email)) {
     throw new EmailTakenError();
   }
@@ -31,6 +34,9 @@ export async function createUser({ name, email, role, password }: CreateUserInpu
     passwordHash: await hashPassword(password),
   });
   logger.info({ userId: user.id, role }, 'Team member created');
+  await runSideEffect('welcome-email', () =>
+    mailer.send({ to: email, ...welcomeEmail({ name, email, temporaryPassword: password }) }),
+  );
   return user;
 }
 

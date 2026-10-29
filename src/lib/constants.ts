@@ -27,6 +27,9 @@ export const LAST_CLIENT_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 export const TIME_ZONE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 export const DEFAULT_TIME_ZONE = 'UTC';
 
+// Long enough to find the email, short enough that a forwarded or leaked link soon goes stale.
+export const PASSWORD_RESET_TTL_MINUTES = 30;
+
 export const LOGIN_RATE_LIMIT = { requests: 5, windowSeconds: 60 } as const;
 
 export const UNDO_TOAST_DURATION_MS = 6000;

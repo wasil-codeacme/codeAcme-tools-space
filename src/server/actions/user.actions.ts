@@ -2,6 +2,7 @@
 
 import { MESSAGES } from '@/lib/messages';
 import { writeAction } from '@/server/actions/action';
+import { mailer } from '@/server/container';
 import * as userService from '@/server/services/user.service';
 import {
   createUserSchema,
@@ -15,7 +16,7 @@ export const createUser = writeAction({
   requireAdmin: true,
   fallback: MESSAGES.USER.CREATE_ERROR,
   logMessage: 'Create team member failed',
-  run: (input) => userService.createUser(input),
+  run: (input) => userService.createUser(mailer, input),
 });
 
 export const updateUser = writeAction({

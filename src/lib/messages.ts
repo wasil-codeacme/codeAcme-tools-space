@@ -13,6 +13,10 @@ export const MESSAGES = {
     PASSWORD_CHANGE_ERROR: 'Could not update your password.',
     CURRENT_PASSWORD_WRONG: 'Your current password is incorrect.',
     PASSWORDS_DO_NOT_MATCH: 'Passwords do not match.',
+    RESET_REQUESTED: 'If that email belongs to an account, a reset link is on its way.',
+    RESET_LINK_INVALID: 'This reset link has expired or was already used. Request a new one.',
+    RESET_SUCCESS: 'Password updated. Sign in with your new password.',
+    RESET_ERROR: 'Could not reset your password.',
   },
   USER: {
     CREATE_SUCCESS: 'Team member added.',

@@ -58,6 +58,10 @@ CI runs locally only: run `pnpm check` (and `pnpm test:e2e`) before pushing. The
   downloads are plain links to route handlers. TanStack Query and the API service chain from the
   standards are intentionally not installed; add them only when a screen genuinely needs client
   fetching.
+- **Email** goes through the `Mailer` port (`src/server/ports/mailer.port.ts`), bound in
+  `src/server/container.ts`: Resend when `RESEND_API_KEY` is set, otherwise the console adapter logs the
+  email. Notification emails run through `runSideEffect` so a mail failure never fails the action.
+  Templates live in `src/lib/emails/`. Password reset tokens are stored only as SHA-256 hashes.
 - **Secrets:** account passwords and secure notes are encrypted with `src/lib/secret-cipher.ts`
   (`SECRETS_ENCRYPTION_KEY`). Ciphertexts never leave the repository layer; list views only carry
   `hasSecret`. Plaintext is returned only by `revealSecret`, which writes the audit row first.

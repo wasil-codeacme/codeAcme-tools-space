@@ -24,5 +24,22 @@ export const changePasswordSchema = z
     path: ['confirmPassword'],
   });
 
+export const requestPasswordResetSchema = z.object({
+  email: z.email('Enter a valid email.').trim().toLowerCase(),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1).max(200),
+    newPassword: passwordSchema,
+    confirmPassword: z.string(),
+  })
+  .refine((values) => values.newPassword === values.confirmPassword, {
+    message: MESSAGES.AUTH.PASSWORDS_DO_NOT_MATCH,
+    path: ['confirmPassword'],
+  });
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type RequestPasswordResetInput = z.infer<typeof requestPasswordResetSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

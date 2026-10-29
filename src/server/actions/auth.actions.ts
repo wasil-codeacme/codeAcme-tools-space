@@ -14,13 +14,23 @@ import { ROUTES } from '@/lib/routes';
 import { sessionCookieOptions, signSession } from '@/lib/session';
 import { isValidTimeZone } from '@/lib/time-tracking/date-key';
 import { validationError, writeAction } from '@/server/actions/action';
-import { loginRateLimiter } from '@/server/container';
+import { loginRateLimiter, mailer, passwordResetRateLimiter } from '@/server/container';
 import {
   type AuthenticatedUser,
   authenticate,
   changePassword as changePasswordService,
 } from '@/server/services/auth.service';
-import { changePasswordSchema, loginSchema } from '@/server/validators/auth.schema';
+import {
+  requestPasswordReset as requestPasswordResetService,
+  resetPassword as resetPasswordService,
+} from '@/server/services/password-reset.service';
+import { mapError } from '@/server/errors';
+import {
+  changePasswordSchema,
+  loginSchema,
+  requestPasswordResetSchema,
+  resetPasswordSchema,
+} from '@/server/validators/auth.schema';
 import type { ActionResponse } from '@/types';
 
 async function writeSessionCookie(user: AuthenticatedUser): Promise<void> {
@@ -79,9 +89,48 @@ export const changePassword = writeAction({
   fallback: MESSAGES.AUTH.PASSWORD_CHANGE_ERROR,
   logMessage: 'Password change failed',
   run: async (input, actor) => {
-    const user = await changePasswordService(actor.id, input);
+    const user = await changePasswordService(mailer, actor.id, input);
     // The version bump revoked every session, including this one; re-issue it so the user stays in.
     await writeSessionCookie(user);
     return { changed: true };
   },
 });
+
+// Public: always answers the same way so it cannot reveal which emails have accounts.
+export async function requestPasswordReset(raw: unknown): Promise<ActionResponse<{ sent: true }>> {
+  const parsed = requestPasswordResetSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { error: validationError(parsed.error) };
+  }
+  const ip = clientIpFromHeaders(await headers());
+  if (!(await passwordResetRateLimiter.consume(ip))) {
+    return { error: MESSAGES.GENERIC.RATE_LIMITED };
+  }
+  try {
+    await requestPasswordResetService(mailer, parsed.data, new Date());
+  } catch (error) {
+    logger.error({ err: error }, 'Password reset request failed');
+  }
+  return { data: { sent: true } };
+}
+
+export async function resetPassword(raw: unknown): Promise<ActionResponse<{ reset: true }>> {
+  const parsed = resetPasswordSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { error: validationError(parsed.error) };
+  }
+  const ip = clientIpFromHeaders(await headers());
+  if (!(await passwordResetRateLimiter.consume(ip))) {
+    return { error: MESSAGES.GENERIC.RATE_LIMITED };
+  }
+  try {
+    await resetPasswordService(mailer, parsed.data, new Date());
+    return { data: { reset: true } };
+  } catch (error) {
+    const message = mapError(error);
+    if (!message) {
+      logger.error({ err: error }, 'Password reset failed');
+    }
+    return { error: message ?? MESSAGES.AUTH.RESET_ERROR };
+  }
+}

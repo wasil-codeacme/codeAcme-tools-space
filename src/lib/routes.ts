@@ -6,6 +6,8 @@ export const ROUTES = {
   HOME: '/',
   AUTH: {
     LOGIN: '/login',
+    FORGOT_PASSWORD: '/forgot-password',
+    RESET_PASSWORD: '/reset-password',
   },
   ACCOUNT: '/account',
   ADMIN: {
@@ -36,4 +38,9 @@ export const ROUTES = {
 } as const;
 
 // Paths the proxy lets through without a session.
-export const PUBLIC_PATHS: readonly string[] = [ROUTES.AUTH.LOGIN, ROUTES.API.HEALTH];
+export const PUBLIC_PATHS: readonly string[] = [
+  ROUTES.AUTH.LOGIN,
+  ROUTES.AUTH.FORGOT_PASSWORD,
+  ROUTES.AUTH.RESET_PASSWORD,
+  ROUTES.API.HEALTH,
+];

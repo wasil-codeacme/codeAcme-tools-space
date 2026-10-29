@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import Link from 'next/link';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { reportActionError } from '@/lib/action-feedback';
+import { ROUTES } from '@/lib/routes';
 import { login } from '@/server/actions/auth.actions';
 import { type LoginInput, loginSchema } from '@/server/validators/auth.schema';
 
@@ -45,7 +47,15 @@ export function LoginForm() {
           <FieldError errors={[errors.email]} />
         </Field>
         <Field data-invalid={Boolean(errors.password)}>
-          <FieldLabel htmlFor="password">Password</FieldLabel>
+          <div className="flex items-center justify-between">
+            <FieldLabel htmlFor="password">Password</FieldLabel>
+            <Link
+              href={ROUTES.AUTH.FORGOT_PASSWORD}
+              className="text-muted-foreground hover:text-primary text-xs"
+            >
+              Forgot password?
+            </Link>
+          </div>
           <Input
             id="password"
             type="password"

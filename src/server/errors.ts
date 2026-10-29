@@ -42,6 +42,13 @@ export class InvalidCurrentPasswordError extends Error {
   }
 }
 
+export class InvalidResetTokenError extends Error {
+  constructor() {
+    super('Password reset link is invalid, used or expired');
+    this.name = 'InvalidResetTokenError';
+  }
+}
+
 export class ClientNameTakenError extends Error {
   constructor() {
     super('Client name already in use');
@@ -85,6 +92,7 @@ const ERROR_MESSAGES = new Map<string, string>([
   ['LastAdminError', MESSAGES.USER.LAST_ADMIN],
   ['SelfActionError', MESSAGES.USER.SELF_ACTION],
   ['InvalidCurrentPasswordError', MESSAGES.AUTH.CURRENT_PASSWORD_WRONG],
+  ['InvalidResetTokenError', MESSAGES.AUTH.RESET_LINK_INVALID],
   ['ClientNameTakenError', MESSAGES.CLIENT.NAME_TAKEN],
   ['ArchivedClientError', MESSAGES.CLIENT.ARCHIVED],
   ['CategoryNameTakenError', MESSAGES.CATEGORY.NAME_TAKEN],
