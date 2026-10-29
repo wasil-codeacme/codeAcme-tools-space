@@ -47,18 +47,18 @@ export function WeekStrip({ days, minutesByDay, selectedKey, todayKey, onSelect 
           >
             <span
               className={cn(
-                'text-[0.68rem] font-medium tracking-wider uppercase',
+                'relative text-[0.68rem] font-medium tracking-wider uppercase',
                 isSelected ? 'text-primary-foreground/75' : 'text-muted-foreground',
               )}
             >
               {formatDateKey(dateKey, 'EEE')}
             </span>
-            <span className="font-heading text-xl leading-none font-semibold">
+            <span className="font-heading relative text-xl leading-none font-semibold">
               {formatDateKey(dateKey, 'd')}
             </span>
             <span
               className={cn(
-                'font-figures text-[0.6rem] whitespace-nowrap sm:text-[0.7rem]',
+                'font-figures relative text-[0.6rem] whitespace-nowrap sm:text-[0.7rem]',
                 minutes === 0 && !isSelected && 'text-muted-foreground/60',
               )}
             >
@@ -73,6 +73,15 @@ export function WeekStrip({ days, minutesByDay, selectedKey, todayKey, onSelect 
                 )}
               />
             )}
+            {/* The card fills from the bottom with the day's hours, so busy days stand out. */}
+            <span
+              aria-hidden
+              style={{ height: `${barPercent}%` }}
+              className={cn(
+                'pointer-events-none absolute inset-x-0 bottom-0 -z-0 transition-[height] duration-500 ease-(--ease-out-quint)',
+                isSelected ? 'bg-primary-foreground/12' : 'bg-primary/8',
+              )}
+            />
             <span
               aria-hidden
               style={{ width: `${barPercent}%` }}

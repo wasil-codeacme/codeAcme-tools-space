@@ -17,6 +17,7 @@ interface YearOverviewGridProps {
 
 const WEEK_COLUMNS = Array.from({ length: MAX_WEEKS_IN_MONTH }, (_, index) => index + 1);
 const HEAT_STEPS = [0.06, 0.12, 0.2, 0.3] as const;
+const FULL_PERCENT = 100;
 
 function heatOpacity(minutes: number, busiest: number): number {
   if (minutes === 0 || busiest === 0) {
@@ -50,7 +51,7 @@ function WeekLink({ week, clientId, busiest }: WeekLinkProps) {
       <span
         className={cn('font-figures text-sm', week.minutes === 0 && 'text-muted-foreground/50')}
       >
-        {formatDecimalHours(week.minutes)}
+        {week.minutes === 0 ? '—' : formatDecimalHours(week.minutes)}
       </span>
       <span className="text-muted-foreground text-[0.65rem]">
         <span className="md:hidden">W{week.index} · </span>
@@ -95,6 +96,19 @@ function MonthRow({ month, clientId, hasLimit, isCurrent, busiest }: MonthRowPro
       })}
       <td className="font-figures px-4 py-2 text-right text-sm font-semibold">
         {formatDecimalHours(month.usage.usedMinutes)}
+        {hasLimit && month.usage.limitMinutes ? (
+          <span
+            aria-hidden
+            className="bg-muted mt-1 ml-auto block h-1 w-14 overflow-hidden rounded-full"
+          >
+            <span
+              className="bg-primary block h-full rounded-full transition-[width] duration-500"
+              style={{
+                width: `${Math.min(FULL_PERCENT, (month.usage.usedMinutes / month.usage.limitMinutes) * FULL_PERCENT)}%`,
+              }}
+            />
+          </span>
+        ) : null}
       </td>
       {hasLimit && (
         <>
@@ -171,12 +185,30 @@ export function YearOverviewGrid({
             Hours per week (Monday–Sunday, cut at month ends). Click a week to open it in the log.
           </p>
         </div>
-        <p className="font-figures text-muted-foreground text-sm">
-          Year total{' '}
-          <span className="text-foreground text-lg font-semibold">
-            {formatDecimalHours(overview.totalMinutes)} h
-          </span>
-        </p>
+        <div className="flex items-center gap-4">
+          <div
+            aria-hidden
+            className="text-muted-foreground hidden items-center gap-1 text-[0.65rem] sm:flex"
+          >
+            Less
+            {HEAT_STEPS.map((opacity) => (
+              <span
+                key={opacity}
+                className="size-3 rounded-[3px]"
+                style={{
+                  backgroundColor: `color-mix(in oklab, var(--primary) ${opacity * FULL_PERCENT}%, transparent)`,
+                }}
+              />
+            ))}
+            More
+          </div>
+          <p className="font-figures text-muted-foreground text-sm">
+            Year total{' '}
+            <span className="text-foreground text-lg font-semibold">
+              {formatDecimalHours(overview.totalMinutes)} h
+            </span>
+          </p>
+        </div>
       </header>
       <ul className="divide-y md:hidden">
         {overview.months.map((month) => (
