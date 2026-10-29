@@ -86,4 +86,15 @@ test('the monthly report previews and exports as PDF and CSV', async () => {
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toBe(contentType);
   }
+
+  await page.getByRole('button', { name: 'Download report' }).click();
+  await page.getByRole('radio', { name: 'One week' }).click();
+  await page.getByLabel('Prepared by').fill('Muhammad Ahmed Fraz');
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('link', { name: 'Download PDF' }).click(),
+  ]);
+  expect(download.url()).toContain('period=RANGE');
+  expect(download.url()).toContain('preparedBy=Muhammad+Ahmed+Fraz');
+  expect(download.suggestedFilename()).toMatch(/\.pdf$/);
 });

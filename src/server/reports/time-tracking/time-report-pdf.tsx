@@ -124,12 +124,26 @@ function DayLog({ report, accent }: { report: TimeReport; accent: string }) {
   );
 }
 
-function TimeReportDocument({ report, logo }: { report: TimeReport; logo: Buffer | null }) {
+interface TimeReportDocumentProps {
+  report: TimeReport;
+  logo: Buffer | null;
+  preparedBy: string | null;
+}
+
+function footerText({ report, logo, preparedBy }: TimeReportDocumentProps): string {
+  const company = logo ? `${SITE.COMPANY} · ${COMPANY_WEBSITE}` : null;
+  const byline = preparedBy ? `Prepared by ${preparedBy}` : null;
+  return [byline, company].filter(Boolean).join(' · ') || report.client.name;
+}
+
+function TimeReportDocument({ report, logo, preparedBy }: TimeReportDocumentProps) {
   const isBranded = logo !== null;
+  // One person's time is already the whole total, so the per-person table would only repeat it.
+  const showsMembers = report.byMember.length > 1;
   return (
     <Document
       title={`${report.client.name} time report · ${report.period.label}`}
-      author={isBranded ? SITE.COMPANY : undefined}
+      author={preparedBy ?? (isBranded ? SITE.COMPANY : undefined)}
     >
       <Page size="A4" style={pdfStyles.page}>
         <View style={pdfStyles.header} fixed>
@@ -145,7 +159,7 @@ function TimeReportDocument({ report, logo }: { report: TimeReport; logo: Buffer
           <Text style={pdfStyles.eyebrow}>Time report</Text>
         </View>
         <Text style={pdfStyles.footer} fixed>
-          {isBranded ? `Prepared by ${SITE.COMPANY} · ${COMPANY_WEBSITE}` : report.client.name}
+          {footerText({ report, logo, preparedBy })}
         </Text>
         <Text
           style={[pdfStyles.eyebrow, { color: isBranded ? PDF_COLORS.brand : PDF_COLORS.muted }]}
@@ -160,6 +174,7 @@ function TimeReportDocument({ report, logo }: { report: TimeReport; logo: Buffer
           {formatDateKey(report.period.startKey, 'd MMM yyyy')} –{' '}
           {formatDateKey(report.period.endKey, 'd MMM yyyy')} · Generated{' '}
           {formatDateKey(report.generatedOn, 'd MMM yyyy')}
+          {preparedBy ? ` · Prepared by ${preparedBy}` : ''}
         </Text>
         <Summary report={report} />
         <View style={pdfStyles.twoColumns}>
@@ -168,7 +183,7 @@ function TimeReportDocument({ report, logo }: { report: TimeReport; logo: Buffer
           </View>
           <View style={pdfStyles.column}>
             <ShareTable title="Hours by category" rows={report.byCategory} />
-            <ShareTable title="Hours by team member" rows={report.byMember} />
+            {showsMembers && <ShareTable title="Hours by team member" rows={report.byMember} />}
           </View>
         </View>
         <DayLog report={report} accent={isBranded ? PDF_COLORS.brandWash : PDF_COLORS.wash} />
@@ -177,7 +192,10 @@ function TimeReportDocument({ report, logo }: { report: TimeReport; logo: Buffer
   );
 }
 
-export async function renderTimeReportPdf(report: TimeReport, branded: boolean): Promise<Buffer> {
+export async function renderTimeReportPdf(
+  report: TimeReport,
+  { branded, preparedBy }: { branded: boolean; preparedBy: string | null },
+): Promise<Buffer> {
   const logo = branded ? await loadLogo() : null;
-  return renderToBuffer(<TimeReportDocument report={report} logo={logo} />);
+  return renderToBuffer(<TimeReportDocument report={report} logo={logo} preparedBy={preparedBy} />);
 }

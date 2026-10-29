@@ -8,7 +8,6 @@ import {
   ControlsSkeleton,
   ReportPreviewSkeleton,
 } from '@/components/tools/time-tracking/skeletons';
-import { ROUTES } from '@/lib/routes';
 import { ReportPeriod } from '@/lib/time-tracking/report-period';
 import { requireAdmin } from '@/server/auth/guards';
 import { listClientsWithUsage } from '@/server/services/time-tracking/client.service';
@@ -16,7 +15,6 @@ import { buildTimeReport } from '@/server/services/time-tracking/time-report.ser
 import { getTodayKey } from '@/server/time-zone';
 import {
   ReportBranding,
-  ReportFormat,
   type ReportQuery,
   reportQuerySchema,
 } from '@/server/validators/time-tracking/time-report.schema';
@@ -24,11 +22,6 @@ import {
 export const metadata: Metadata = { title: 'Time · Reports' };
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
-
-function exportHref(query: ReportQuery, format: ReportFormat): string {
-  const params = new URLSearchParams({ ...query, format });
-  return `${ROUTES.API.TIME_TRACKING.REPORT_EXPORT}?${params.toString()}`;
-}
 
 async function ReportsContent({ searchParams }: { searchParams: SearchParams }) {
   const actor = await requireAdmin();
@@ -62,8 +55,8 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
         clients={clients.map(({ id, name }) => ({ id, name }))}
         query={query}
         periodLabel={report.period.label}
-        pdfHref={exportHref(query, ReportFormat.PDF)}
-        csvHref={exportHref(query, ReportFormat.CSV)}
+        today={today}
+        defaultPreparedBy={actor.name}
       />
       <PendingSection fallback={<ReportPreviewSkeleton />}>
         <ReportPreview report={report} branded={query.branding === ReportBranding.CODEACME} />

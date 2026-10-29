@@ -1,14 +1,8 @@
 'use client';
 
 import { format } from 'date-fns';
-import {
-  Building2,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  FileDown,
-  FileSpreadsheet,
-} from 'lucide-react';
+import { Building2, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ReportDownloadDialog } from '@/components/tools/time-tracking/reports/report-download-dialog';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -21,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useSearchParamNavigation } from '@/hooks/use-search-param-navigation';
-import { fromDateKey } from '@/lib/time-tracking/date-key';
+import { type DateKey, fromDateKey } from '@/lib/time-tracking/date-key';
 import {
   REPORT_PERIOD_LABELS,
   ReportPeriod,
@@ -36,8 +30,8 @@ interface ReportFiltersProps {
   clients: { id: string; name: string }[];
   query: ReportQuery;
   periodLabel: string;
-  pdfHref: string;
-  csvHref: string;
+  today: DateKey;
+  defaultPreparedBy: string;
 }
 
 const PERIODS = [ReportPeriod.WEEK, ReportPeriod.TWO_WEEKS, ReportPeriod.MONTH] as const;
@@ -52,8 +46,8 @@ export function ReportFilters({
   clients,
   query,
   periodLabel,
-  pdfHref,
-  csvHref,
+  today,
+  defaultPreparedBy,
 }: ReportFiltersProps) {
   const { navigate } = useSearchParamNavigation();
   const selectedDate = fromDateKey(query.date);
@@ -145,20 +139,15 @@ export function ReportFilters({
             Unbranded
           </ToggleGroupItem>
         </ToggleGroup>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <a href={csvHref} download>
-              <FileSpreadsheet />
-              Download CSV
-            </a>
-          </Button>
-          <Button asChild>
-            <a href={pdfHref} download>
-              <FileDown />
-              Download PDF
-            </a>
-          </Button>
-        </div>
+        <ReportDownloadDialog
+          key={`${query.clientId}:${query.period}:${query.date}:${query.to ?? ''}`}
+          clientId={query.clientId}
+          clientName={clients.find((client) => client.id === query.clientId)?.name ?? 'client'}
+          today={today}
+          shown={{ period: query.period, date: query.date, to: query.to, label: periodLabel }}
+          branding={query.branding}
+          defaultPreparedBy={defaultPreparedBy}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,12 @@
-import { type DateKey, daysBetweenKeys, formatDateKey } from '@/lib/time-tracking/date-key';
-import { getMonthWeeks } from '@/lib/time-tracking/month-weeks';
+import { DAYS_PER_TWO_WEEKS, DAYS_PER_WEEK } from '@/lib/constants';
+import {
+  type DateKey,
+  addDaysToKey,
+  daysBetweenKeys,
+  formatDateKey,
+  weekStartKey,
+} from '@/lib/time-tracking/date-key';
+import { formatRangeLabel, getMonthWeeks } from '@/lib/time-tracking/month-weeks';
 import { ReportPeriod, type ResolvedPeriod } from '@/lib/time-tracking/report-period';
 import { toMonthUsage } from '@/lib/time-tracking/usage';
 import {
@@ -59,13 +66,28 @@ function buildBreakdown(period: ResolvedPeriod, entries: readonly TimeEntryView[
     }));
     return { breakdownKind: BreakdownKind.WEEK, breakdown: rows };
   }
-  const rows: ReportBreakdownRow[] = daysBetweenKeys(period.startKey, period.endKey).map(
-    (dateKey) => ({
-      label: formatDateKey(dateKey, 'EEEE'),
-      detail: formatDateKey(dateKey, 'd MMM'),
-      minutes: minutesBetween(entries, dateKey, dateKey),
-    }),
-  );
+  const days = daysBetweenKeys(period.startKey, period.endKey);
+  // Long custom ranges read better week by week; weeks run Monday to Sunday, clipped to the range.
+  if (days.length > DAYS_PER_TWO_WEEKS) {
+    const weekStarts = days.filter(
+      (dateKey, index) => index === 0 || weekStartKey(dateKey) === dateKey,
+    );
+    const rows: ReportBreakdownRow[] = weekStarts.map((startKey) => {
+      const naturalEnd = addDaysToKey(weekStartKey(startKey), DAYS_PER_WEEK - 1);
+      const endKey = naturalEnd < period.endKey ? naturalEnd : period.endKey;
+      return {
+        label: `Week of ${formatDateKey(startKey, 'd MMM')}`,
+        detail: formatRangeLabel(startKey, endKey),
+        minutes: minutesBetween(entries, startKey, endKey),
+      };
+    });
+    return { breakdownKind: BreakdownKind.WEEK, breakdown: rows };
+  }
+  const rows: ReportBreakdownRow[] = days.map((dateKey) => ({
+    label: formatDateKey(dateKey, 'EEEE'),
+    detail: formatDateKey(dateKey, 'd MMM'),
+    minutes: minutesBetween(entries, dateKey, dateKey),
+  }));
   return { breakdownKind: BreakdownKind.DAY, breakdown: rows };
 }
 

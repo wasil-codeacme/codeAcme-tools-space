@@ -41,4 +41,14 @@ describe('shiftPeriodAnchor', () => {
     expect(shiftPeriodAnchor(ReportPeriod.WEEK, '2026-10-21', -1)).toBe('2026-10-12');
     expect(shiftPeriodAnchor(ReportPeriod.TWO_WEEKS, '2026-10-21', 1)).toBe('2026-11-02');
   });
+
+  it('resolves a custom range in either order', () => {
+    expect(resolvePeriod(ReportPeriod.RANGE, '2026-10-26', '2026-10-05')).toMatchObject({
+      startKey: '2026-10-05',
+      endKey: '2026-10-26',
+      label: '5 Oct – 26 Oct 2026',
+      slug: '2026-10-05_2026-10-26',
+    });
+    expect(resolvePeriod(ReportPeriod.RANGE, '2026-10-19').label).toBe('19 Oct 2026');
+  });
 });

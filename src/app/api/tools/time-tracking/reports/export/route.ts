@@ -49,13 +49,16 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const { format, branding } = parsed.data;
+    const { format, branding, preparedBy } = parsed.data;
     const report = await buildTimeReport(actor, parsed.data, await getTodayKey());
     const fileName = reportFileName(report, format);
     if (format === ReportFormat.CSV) {
       return fileResponse(renderTimeReportCsv(report), 'text/csv; charset=utf-8', fileName);
     }
-    const pdf = await renderTimeReportPdf(report, branding === ReportBranding.CODEACME);
+    const pdf = await renderTimeReportPdf(report, {
+      branded: branding === ReportBranding.CODEACME,
+      preparedBy: preparedBy || null,
+    });
     return fileResponse(new Uint8Array(pdf), 'application/pdf', fileName);
   } catch (error) {
     if (error instanceof NotFoundError) {

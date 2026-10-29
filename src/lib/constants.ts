@@ -2,6 +2,9 @@ export const MINUTES_PER_HOUR = 60;
 export const HOURS_PER_DAY = 24;
 export const DAYS_PER_WEEK = 7;
 export const DAYS_PER_TWO_WEEKS = 14;
+// A custom report covers at most a year, which keeps the PDF a sensible size.
+export const MAX_REPORT_RANGE_DAYS = 366;
+export const MAX_PREPARED_BY_LENGTH = 120;
 export const MAX_WEEKS_IN_MONTH = 6;
 // Weeks run Monday to Sunday, matching the existing time log sheets.
 export const WEEK_STARTS_ON = 1;

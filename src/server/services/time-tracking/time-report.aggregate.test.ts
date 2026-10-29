@@ -111,4 +111,25 @@ describe('aggregateTimeReport', () => {
     expect(weekly.usage).toBeNull();
     expect(weekly.totalMinutes).toBe(120);
   });
+
+  it('breaks a long custom range into Monday-to-Sunday weeks clipped to the range', () => {
+    const report = aggregateTimeReport({
+      client: {
+        name: 'The 30k Club',
+        slug: 'the-30k-club',
+        contactName: null,
+        monthlyLimitMinutes: null,
+      },
+      period: resolvePeriod(ReportPeriod.RANGE, '2026-10-08', '2026-10-28'),
+      entries: [],
+      generatedOn: '2026-10-29',
+    });
+    expect(report.breakdownKind).toBe(BreakdownKind.WEEK);
+    expect(report.breakdown.map((row) => row.detail)).toEqual([
+      'Oct 8–11',
+      'Oct 12–18',
+      'Oct 19–25',
+      'Oct 26–28',
+    ]);
+  });
 });

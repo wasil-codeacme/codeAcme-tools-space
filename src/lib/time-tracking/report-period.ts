@@ -15,6 +15,8 @@ export const ReportPeriod = {
   WEEK: 'WEEK',
   TWO_WEEKS: 'TWO_WEEKS',
   MONTH: 'MONTH',
+  // Any start and end day, e.g. one week of the month as the client's sheet cuts it.
+  RANGE: 'RANGE',
 } as const;
 
 export type ReportPeriod = (typeof ReportPeriod)[keyof typeof ReportPeriod];
@@ -23,6 +25,7 @@ export const REPORT_PERIOD_LABELS: Record<ReportPeriod, string> = {
   WEEK: 'Week',
   TWO_WEEKS: '2 weeks',
   MONTH: 'Month',
+  RANGE: 'Custom range',
 };
 
 export interface ResolvedPeriod {
@@ -40,7 +43,25 @@ function rangeLabel(startKey: DateKey, endKey: DateKey): string {
   return `${start} – ${formatDateKey(endKey, 'd MMM yyyy')}`;
 }
 
-export function resolvePeriod(period: ReportPeriod, anchorKey: DateKey): ResolvedPeriod {
+export function resolvePeriod(
+  period: ReportPeriod,
+  anchorKey: DateKey,
+  rangeEndKey?: DateKey,
+): ResolvedPeriod {
+  if (period === ReportPeriod.RANGE) {
+    const endKey = rangeEndKey ?? anchorKey;
+    const [startKey, lastKey] = anchorKey <= endKey ? [anchorKey, endKey] : [endKey, anchorKey];
+    return {
+      period,
+      startKey,
+      endKey: lastKey,
+      label:
+        startKey === lastKey
+          ? formatDateKey(startKey, 'd MMM yyyy')
+          : rangeLabel(startKey, lastKey),
+      slug: `${startKey}_${lastKey}`,
+    };
+  }
   if (period === ReportPeriod.MONTH) {
     const startKey = monthStartKey(anchorKey);
     return {
@@ -69,7 +90,7 @@ export function shiftPeriodAnchor(
   anchorKey: DateKey,
   direction: 1 | -1,
 ): DateKey {
-  if (period === ReportPeriod.MONTH) {
+  if (period === ReportPeriod.MONTH || period === ReportPeriod.RANGE) {
     return toDateKey(addMonths(fromDateKey(monthStartKey(anchorKey)), direction));
   }
   const length = period === ReportPeriod.WEEK ? DAYS_PER_WEEK : DAYS_PER_TWO_WEEKS;
