@@ -41,7 +41,7 @@ function Tab({ href, label, icon, active }: TabProps) {
       variant="ghost"
       className={cn(TAB_CLASS, active ? 'text-primary' : 'text-muted-foreground')}
     >
-      <Link href={href} aria-current={active ? 'page' : undefined}>
+      <Link href={href} prefetch aria-current={active ? 'page' : undefined}>
         <span className={cn(ICON_PILL_CLASS, active && 'bg-accent')}>{icon}</span>
         {label}
       </Link>

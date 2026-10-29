@@ -37,6 +37,7 @@ export function ToolTabs({ toolId, isAdmin }: ToolTabsProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch
                 aria-current={isActive ? 'page' : undefined}
                 className={cn(
                   'text-muted-foreground hover:text-foreground rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors duration-200',

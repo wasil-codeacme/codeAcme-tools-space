@@ -14,6 +14,11 @@ const SECURITY_HEADERS = [
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    // Keep pages you have visited in the browser for five minutes, so going back to them is
+    // instant. Every save calls refresh(), which clears this cache, so your own changes always show.
+    staleTimes: { dynamic: 300 },
+  },
   reactStrictMode: true,
   // react-pdf ships its own font/layout engines that must not be bundled by Turbopack.
   serverExternalPackages: ['@react-pdf/renderer'],

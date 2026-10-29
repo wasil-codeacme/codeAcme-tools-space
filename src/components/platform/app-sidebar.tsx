@@ -37,7 +37,7 @@ function SidebarBrand() {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" asChild>
-            <Link href={ROUTES.HOME}>
+            <Link href={ROUTES.HOME} prefetch>
               <span className="bg-background ring-border flex aspect-square size-8 items-center justify-center rounded-lg ring-1">
                 <Image src={SITE.LOGO_MARK} alt="" width={22} height={13} className="h-auto" />
               </span>
@@ -69,7 +69,7 @@ export function AppSidebar({
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild isActive={isActive(pathname, ROUTES.HOME)} tooltip="Home">
-                <Link href={ROUTES.HOME}>
+                <Link href={ROUTES.HOME} prefetch>
                   <House />
                   <span>Home</span>
                 </Link>
@@ -88,7 +88,7 @@ export function AppSidebar({
                     isActive={isActive(pathname, tool.href)}
                     tooltip={tool.name}
                   >
-                    <Link href={tool.href}>
+                    <Link href={tool.href} prefetch>
                       <tool.icon />
                       <span>{tool.name}</span>
                     </Link>
@@ -109,7 +109,7 @@ export function AppSidebar({
                     isActive={isActive(pathname, ROUTES.ADMIN.TEAM)}
                     tooltip="Team"
                   >
-                    <Link href={ROUTES.ADMIN.TEAM}>
+                    <Link href={ROUTES.ADMIN.TEAM} prefetch>
                       <Users />
                       <span>Team</span>
                     </Link>
