@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { House, Users } from 'lucide-react';
+import { CommandMenu } from '@/components/platform/command-menu';
 import { UserMenu } from '@/components/platform/user-menu';
 import {
   Sidebar,
@@ -31,7 +32,7 @@ function isActive(pathname: string, href: string): boolean {
   return href === ROUTES.HOME ? pathname === href : pathname.startsWith(href);
 }
 
-function SidebarBrand() {
+function SidebarBrand({ search }: { search?: React.ReactNode }) {
   return (
     <SidebarHeader>
       <SidebarMenu>
@@ -49,21 +50,24 @@ function SidebarBrand() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
+      {search}
     </SidebarHeader>
   );
 }
 
 export function AppSidebar({
   user,
+  clients,
 }: {
   user: Pick<SessionUser, 'name' | 'email' | 'role' | 'toolAccess'>;
+  clients: { id: string; name: string }[];
 }) {
   const pathname = usePathname();
   const tools = toolsForUser(user);
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarBrand />
+      <SidebarBrand search={<CommandMenu user={user} clients={clients} />} />
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>

@@ -1,8 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Building2, Pause, Play, Square, TriangleAlert } from 'lucide-react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -12,28 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useLocalTimer } from '@/hooks/use-local-timer';
-import { useNowMs } from '@/hooks/use-now';
-import { reportActionError } from '@/lib/action-feedback';
+import { useWorkTimer } from '@/hooks/use-work-timer';
 import { DAILY_GOAL_MINUTES, LONG_SESSION_WARNING_MINUTES } from '@/lib/constants';
-import { MESSAGES } from '@/lib/messages';
-import { formatDuration } from '@/lib/time-tracking/duration';
 import { formatElapsed } from '@/lib/work-timer/format-elapsed';
-import {
-  type LocalTimer,
-  elapsedMs,
-  finishTimer,
-  isPaused,
-  pauseTimer,
-  resumeTimer,
-  startTimer,
-} from '@/lib/work-timer/local-timer';
+import { type LocalTimer, startTimer } from '@/lib/work-timer/local-timer';
 import { cn } from '@/lib/utils';
-import { recordWorkSession } from '@/server/actions/work-timer/work-session.actions';
 import type { WorkSessionView } from '@/types/work-timer';
 
 export const NO_CLIENT = 'none';
-const MILLISECONDS_PER_SECOND = 1000;
 const SECONDS_PER_MINUTE = 60;
 const RING_RADIUS = 120;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -115,10 +100,15 @@ export function TimerPanel({
     clients.length === 1 ? (clients[0]?.id ?? NO_CLIENT) : NO_CLIENT,
   );
   const [note, setNote] = useState('');
-  const { timer, save } = useLocalTimer(userId);
-  const nowMs = useNowMs();
   // Legacy sessions already finished here, so a stale server prop never re-adopts them.
   const finishedLegacyIds = useRef(new Set<string>());
+  const markLegacyFinished = useCallback((legacySessionId: string) => {
+    finishedLegacyIds.current.add(legacySessionId);
+  }, []);
+  const { timer, save, nowMs, paused, elapsedSeconds, togglePause, stop } = useWorkTimer(
+    userId,
+    markLegacyFinished,
+  );
 
   useEffect(() => {
     if (!timer && legacyRunning && !finishedLegacyIds.current.has(legacyRunning.id)) {
@@ -127,9 +117,6 @@ export function TimerPanel({
   }, [timer, legacyRunning, save]);
 
   const isHydrated = nowMs !== null;
-  const paused = timer !== null && isPaused(timer);
-  const elapsedSeconds =
-    timer && nowMs !== null ? Math.floor(elapsedMs(timer, nowMs) / MILLISECONDS_PER_SECOND) : 0;
   const todaySeconds = todayWorkedMinutes * SECONDS_PER_MINUTE + elapsedSeconds;
   const progress = todaySeconds / (DAILY_GOAL_MINUTES * SECONDS_PER_MINUTE);
   const isLong = elapsedSeconds / SECONDS_PER_MINUTE >= LONG_SESSION_WARNING_MINUTES;
@@ -148,33 +135,6 @@ export function TimerPanel({
       ),
     );
     setNote('');
-  }
-
-  // The finished session is the only thing sent to the server. The panel resets immediately; if the
-  // save fails, the timer is put back so no time is lost and Stop can be pressed again.
-  async function stop() {
-    if (!timer) {
-      return;
-    }
-    const finished = finishTimer(timer, Date.now());
-    if (timer.legacySessionId) {
-      finishedLegacyIds.current.add(timer.legacySessionId);
-    }
-    save(null);
-    const result = await recordWorkSession(finished);
-    if (result.error !== undefined) {
-      if (timer.legacySessionId) {
-        finishedLegacyIds.current.delete(timer.legacySessionId);
-      }
-      save(timer);
-      reportActionError(result.error);
-      return;
-    }
-    toast.success(
-      MESSAGES.TIMER.STOPPED(
-        formatDuration(Math.round(finished.workedSeconds / SECONDS_PER_MINUTE)),
-      ),
-    );
   }
 
   return (
@@ -230,9 +190,7 @@ export function TimerPanel({
             <Button
               size="lg"
               variant={paused ? 'default' : 'secondary'}
-              onClick={() =>
-                save(paused ? resumeTimer(timer, Date.now()) : pauseTimer(timer, Date.now()))
-              }
+              onClick={togglePause}
               className="h-12 min-w-32 rounded-full px-6 text-base font-semibold"
             >
               {paused ? <Play className="fill-current" /> : <Pause className="fill-current" />}
@@ -241,7 +199,7 @@ export function TimerPanel({
             <Button
               size="lg"
               variant={paused ? 'secondary' : 'default'}
-              onClick={stop}
+              onClick={() => void stop()}
               className="h-12 min-w-32 rounded-full px-6 text-base font-semibold"
             >
               <Square className="fill-current" />
