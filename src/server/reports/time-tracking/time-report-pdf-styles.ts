@@ -2,12 +2,12 @@ import { StyleSheet } from '@react-pdf/renderer';
 
 // PDF colours mirror the app theme: CodeAcme violet as the accent on warm neutrals.
 export const PDF_COLORS = {
-  brand: '#5A2EF0',
-  ink: '#1D1B26',
-  muted: '#6B6880',
-  border: '#E7E4DC',
-  wash: '#F7F5F0',
-  brandWash: '#EFEBFE',
+  brand: '#5911EB',
+  ink: '#0C0B13',
+  muted: '#6D6A7C',
+  border: '#E4E2EC',
+  wash: '#F8F7FB',
+  brandWash: '#F3EFFE',
 } as const;
 
 export const pdfStyles = StyleSheet.create({

@@ -78,7 +78,7 @@ function PlatformBreadcrumbs() {
 
 export function PlatformHeader() {
   return (
-    <header className="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 px-4 backdrop-blur-md md:px-6">
+    <header className="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-md md:px-6">
       {/* Phones navigate with the bottom tab bar, so the sidebar toggle is desktop-only. */}
       <SidebarTrigger className="-ml-1 max-md:hidden" />
       <Separator

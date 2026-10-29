@@ -11,11 +11,11 @@ const LOGO_MARK_DATA_URI = `data:image/png;base64,${readFileSync(
 const LOGO_ASPECT = 126 / 211;
 
 export const BRAND_COLORS = {
-  violet: '#5A2EF0',
-  paper: '#F7F5F0',
-  ink: '#1D1B26',
-  muted: '#6B6880',
-  dot: 'rgba(29, 27, 38, 0.08)',
+  violet: '#5911EB',
+  paper: '#FFFFFF',
+  ink: '#0C0B13',
+  muted: '#6D6A7C',
+  dot: 'rgba(89, 17, 235, 0.08)',
 } as const;
 
 export function LogoMark({ width }: { width: number }) {

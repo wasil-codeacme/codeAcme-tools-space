@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-bricolage);
+  --font-sans: var(--font-sans-brand);
+  --font-mono: var(--font-mono-brand);
+  --font-heading: var(--font-sans-brand);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -53,45 +53,46 @@
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Ledger theme: warm paper neutrals, deep ink, and CodeAcme violet as the single accent. */
+/* CodeAcme Voice light theme: white surfaces, ink text and CodeAcme violet as the one accent, so
+   every CodeAcme product reads as one family. Values are copied from voice.codeacme.com. */
 :root {
-  --background: oklch(0.982 0.004 85);
-  --foreground: oklch(0.21 0.02 285);
-  --card: oklch(0.997 0.002 85);
-  --card-foreground: oklch(0.21 0.02 285);
-  --popover: oklch(0.997 0.002 85);
-  --popover-foreground: oklch(0.21 0.02 285);
-  --brand: oklch(0.52 0.26 286);
-  --primary: oklch(0.5 0.25 286);
-  --primary-foreground: oklch(0.985 0.005 285);
-  --secondary: oklch(0.955 0.008 85);
-  --secondary-foreground: oklch(0.26 0.02 285);
-  --muted: oklch(0.955 0.006 85);
-  --muted-foreground: oklch(0.5 0.018 285);
-  --accent: oklch(0.95 0.025 286);
-  --accent-foreground: oklch(0.36 0.17 286);
-  --destructive: oklch(0.577 0.215 25);
-  --border: oklch(0.905 0.008 80);
-  --input: oklch(0.88 0.01 80);
-  --ring: oklch(0.6 0.2 286);
-  --success: oklch(0.6 0.14 158);
-  --warning: oklch(0.72 0.15 70);
-  --danger: oklch(0.6 0.2 22);
-  --chart-1: oklch(0.52 0.26 286);
-  --chart-2: oklch(0.65 0.17 286);
-  --chart-3: oklch(0.6 0.14 158);
-  --chart-4: oklch(0.72 0.15 70);
-  --chart-5: oklch(0.6 0.2 22);
-  --radius: 0.7rem;
-  --sidebar: oklch(0.97 0.006 85);
-  --sidebar-foreground: oklch(0.26 0.02 285);
-  --sidebar-primary: oklch(0.5 0.25 286);
-  --sidebar-primary-foreground: oklch(0.985 0.005 285);
-  --sidebar-accent: oklch(0.93 0.02 286);
-  --sidebar-accent-foreground: oklch(0.3 0.12 286);
-  --sidebar-border: oklch(0.9 0.008 80);
-  --sidebar-ring: oklch(0.6 0.2 286);
-  --ledger-dot: oklch(0.21 0.02 285 / 7%);
+  --background: #ffffff;
+  --foreground: #0c0b13;
+  --card: #ffffff;
+  --card-foreground: #0c0b13;
+  --popover: #ffffff;
+  --popover-foreground: #0c0b13;
+  --brand: #5911eb;
+  --primary: #5911eb;
+  --primary-foreground: #ffffff;
+  --secondary: #f8f7fb;
+  --secondary-foreground: #21202b;
+  --muted: #f1f0f6;
+  --muted-foreground: #6d6a7c;
+  --accent: #f3effe;
+  --accent-foreground: #3d0da2;
+  --destructive: #c02626;
+  --border: #e4e2ec;
+  --input: #e4e2ec;
+  --ring: #8a5cf4;
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --chart-1: #5911eb;
+  --chart-2: #8a5cf4;
+  --chart-3: #059669;
+  --chart-4: #d97706;
+  --chart-5: #dc2626;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0c0b13;
+  --sidebar-primary: #5911eb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f3effe;
+  --sidebar-accent-foreground: #3d0da2;
+  --sidebar-border: #e4e2ec;
+  --sidebar-ring: #8a5cf4;
+  --ledger-dot: rgba(89, 17, 235, 0.05);
 }
 
 .dark {
@@ -146,13 +147,79 @@
   }
 }
 
+/* The fine violet grid behind pages, as on voice.codeacme.com. */
 @utility bg-ledger {
-  background-image: radial-gradient(var(--ledger-dot) 1px, transparent 1px);
-  background-size: 22px 22px;
+  background-image:
+    linear-gradient(var(--ledger-dot) 1px, transparent 1px),
+    linear-gradient(90deg, var(--ledger-dot) 1px, transparent 1px);
+  background-size: 46px 46px;
 }
 
 @utility font-figures {
-  font-family: var(--font-geist-mono);
+  font-family: var(--font-mono-brand);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
+}
+
+/* The uppercase, wide-tracked mono label used across CodeAcme products. */
+@utility ca-eyebrow {
+  font-family: var(--font-mono-brand), ui-monospace, monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Two slow drifting colour blobs give the sign-in screen depth without shipping an image. */
+@keyframes ca-huedrift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6%, -4%, 0) scale(1.15);
+  }
+}
+
+@keyframes ca-huedrift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-7%, 5%, 0) scale(0.92);
+  }
+}
+
+@keyframes ca-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility ca-hue-a {
+  animation: ca-huedrift-a 20s ease-in-out infinite;
+}
+
+@utility ca-hue-b {
+  animation: ca-huedrift-b 26s ease-in-out infinite;
+}
+
+/* Staggered entrance; `--i` is the item's index, set inline. */
+@utility ca-reveal {
+  animation: ca-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ca-hue-a,
+  .ca-hue-b,
+  .ca-reveal {
+    animation: none;
+  }
 }

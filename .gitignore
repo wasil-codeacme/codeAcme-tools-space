@@ -54,3 +54,6 @@ next-env.d.ts
 
 # allow the env template
 !.env.example
+
+# Personal standup notes from /day-start and /day-end
+.claude/standups/

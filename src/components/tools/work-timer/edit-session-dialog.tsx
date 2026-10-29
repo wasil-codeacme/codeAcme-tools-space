@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DateTimePicker } from '@/components/platform/date-time-picker';
 import { NO_CLIENT } from '@/components/tools/work-timer/timer-panel';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,9 +28,6 @@ import { MESSAGES } from '@/lib/messages';
 import { updateWorkSession } from '@/server/actions/work-timer/work-session.actions';
 import type { WorkSessionHistoryItem } from '@/types/work-timer';
 
-// <input type="datetime-local"> works in the browser's local time; convert at the edges.
-const LOCAL_INPUT_FORMAT = "yyyy-MM-dd'T'HH:mm";
-
 interface EditSessionDialogProps {
   session: WorkSessionHistoryItem;
   clients: { id: string; name: string }[];
@@ -40,12 +37,8 @@ interface EditSessionDialogProps {
 export function EditSessionDialog({ session, clients, onClose }: EditSessionDialogProps) {
   const [clientId, setClientId] = useState(session.clientId ?? NO_CLIENT);
   const [note, setNote] = useState(session.note ?? '');
-  const [startedAt, setStartedAt] = useState(
-    format(new Date(session.startedAt), LOCAL_INPUT_FORMAT),
-  );
-  const [endedAt, setEndedAt] = useState(
-    format(new Date(session.endedAt ?? session.startedAt), LOCAL_INPUT_FORMAT),
-  );
+  const [startedAt, setStartedAt] = useState(() => new Date(session.startedAt));
+  const [endedAt, setEndedAt] = useState(() => new Date(session.endedAt ?? session.startedAt));
   const [isPending, startTransition] = useTransition();
 
   function save() {
@@ -54,8 +47,8 @@ export function EditSessionDialog({ session, clients, onClose }: EditSessionDial
         sessionId: session.id,
         clientId: clientId === NO_CLIENT ? null : clientId,
         note,
-        startedAt: new Date(startedAt).toISOString(),
-        endedAt: new Date(endedAt).toISOString(),
+        startedAt: startedAt.toISOString(),
+        endedAt: endedAt.toISOString(),
       });
       if (result.error !== undefined) {
         reportActionError(result.error);
@@ -74,26 +67,24 @@ export function EditSessionDialog({ session, clients, onClose }: EditSessionDial
           <DialogDescription>Fix the times if you forgot to press start or stop.</DialogDescription>
         </DialogHeader>
         <FieldGroup>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="session-start">Started</FieldLabel>
-              <Input
-                id="session-start"
-                type="datetime-local"
-                value={startedAt}
-                onChange={(event) => setStartedAt(event.target.value)}
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="session-end">Stopped</FieldLabel>
-              <Input
-                id="session-end"
-                type="datetime-local"
-                value={endedAt}
-                onChange={(event) => setEndedAt(event.target.value)}
-              />
-            </Field>
-          </div>
+          <Field>
+            <FieldLabel htmlFor="session-start">Started</FieldLabel>
+            <DateTimePicker
+              id="session-start"
+              label="Started"
+              value={startedAt}
+              onChange={setStartedAt}
+            />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="session-end">Stopped</FieldLabel>
+            <DateTimePicker
+              id="session-end"
+              label="Stopped"
+              value={endedAt}
+              onChange={setEndedAt}
+            />
+          </Field>
           <Field>
             <FieldLabel>Client</FieldLabel>
             <Select value={clientId} onValueChange={setClientId}>

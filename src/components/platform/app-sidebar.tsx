@@ -39,7 +39,7 @@ function SidebarBrand() {
           <SidebarMenuButton size="lg" asChild>
             <Link href={ROUTES.HOME}>
               <span className="bg-background ring-border flex aspect-square size-8 items-center justify-center rounded-lg ring-1">
-                <Image src={SITE.LOGO_MARK} alt="" width={22} height={13} />
+                <Image src={SITE.LOGO_MARK} alt="" width={22} height={13} className="h-auto" />
               </span>
               <span className="grid flex-1 text-left leading-tight">
                 <span className="font-heading font-semibold tracking-tight">CodeAcme</span>
@@ -58,7 +58,7 @@ export function AppSidebar({ user }: { user: Pick<SessionUser, 'name' | 'email' 
   const tools = toolsForRole(user.role);
 
   return (
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon">
       <SidebarBrand />
       <SidebarContent>
         <SidebarGroup>
@@ -126,7 +126,7 @@ export function AppSidebar({ user }: { user: Pick<SessionUser, 'name' | 'email' 
 
 export function AppSidebarSkeleton() {
   return (
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon">
       <SidebarBrand />
       <SidebarContent>
         <SidebarGroup>
