@@ -48,5 +48,7 @@ export const MAX_SESSION_NOTE_LENGTH = 500;
 export const WORK_TIMER_HISTORY_DAYS = 62;
 // Running longer than this usually means someone forgot to press stop.
 export const LONG_SESSION_WARNING_MINUTES = 10 * 60;
+// The Work Timer's ring fills toward a normal working day.
+export const DAILY_GOAL_MINUTES = 8 * 60;
 // A browser-timed session longer than a week is almost certainly a timer left running by mistake.
 export const MAX_SESSION_SECONDS = 7 * 24 * 60 * 60;

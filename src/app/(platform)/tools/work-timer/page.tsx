@@ -41,14 +41,23 @@ async function WorkTimerContent({ searchParams }: { searchParams: SearchParams }
     isAdmin ? listActiveUsers() : Promise.resolve([]),
   ]);
   const clientOptions = clients.map(({ id, name }) => ({ id, name }));
+  const historyItems = toHistoryItems(sessions, timeZone);
+  const todayWorkedMinutes = historyItems
+    .filter((item) => item.userId === actor.id && item.dateKey === today)
+    .reduce((total, item) => total + item.durationMinutes, 0);
 
   return (
     <div className="space-y-6">
       {canUseTool(actor, ToolId.WORK_TIMER, ToolAccessLevel.EDIT) && (
-        <TimerPanel userId={actor.id} clients={clientOptions} legacyRunning={running} />
+        <TimerPanel
+          userId={actor.id}
+          clients={clientOptions}
+          todayWorkedMinutes={todayWorkedMinutes}
+          legacyRunning={running}
+        />
       )}
       <SessionHistory
-        items={toHistoryItems(sessions, timeZone)}
+        items={historyItems}
         todayKey={today}
         clients={clientOptions}
         currentUserId={actor.id}
