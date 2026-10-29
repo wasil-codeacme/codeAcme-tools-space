@@ -59,11 +59,11 @@ export const TOOLS = [
       'Track one-off projects like an MVP with the hours they took and the hours billed, then invoice them.',
     icon: BriefcaseBusiness,
     href: ROUTES.TOOLS.PROJECTS.ROOT,
-    roles: [Role.ADMIN],
+    roles: [Role.ADMIN, Role.MEMBER],
     navigation: [
       { label: 'Projects', href: ROUTES.TOOLS.PROJECTS.ROOT },
-      { label: 'Invoices', href: ROUTES.TOOLS.PROJECTS.INVOICES },
-      { label: 'Payment details', href: ROUTES.TOOLS.PROJECTS.PAYMENT_DETAILS },
+      { label: 'Invoices', href: ROUTES.TOOLS.PROJECTS.INVOICES, adminOnly: true },
+      { label: 'Payment details', href: ROUTES.TOOLS.PROJECTS.PAYMENT_DETAILS, adminOnly: true },
     ],
   },
 ] as const satisfies readonly ToolDefinition[];

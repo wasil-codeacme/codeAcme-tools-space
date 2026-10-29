@@ -12,14 +12,13 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { ToolId } from '@/config/tools';
-import { requireToolAccess } from '@/server/auth/guards';
+import { requireAdmin } from '@/server/auth/guards';
 import { listPaymentProfiles } from '@/server/services/projects/projects.service';
 
 export const metadata: Metadata = { title: 'Payment details' };
 
 async function PaymentDetailsContent() {
-  await requireToolAccess(ToolId.PROJECTS);
+  await requireAdmin();
   const profiles = await listPaymentProfiles();
   return profiles.length === 0 ? (
     <Empty className="bg-card/60 rounded-2xl border border-dashed py-16">

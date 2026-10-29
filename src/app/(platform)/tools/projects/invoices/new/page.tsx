@@ -5,10 +5,9 @@ import { PageHeader } from '@/components/platform/page-header';
 import { ListPageSkeleton } from '@/components/platform/skeletons';
 import { InvoiceForm } from '@/components/tools/projects/invoice-form';
 import { Button } from '@/components/ui/button';
-import { ToolId } from '@/config/tools';
 import { ROUTES } from '@/lib/routes';
 import { addDaysToKey } from '@/lib/time-tracking/date-key';
-import { requireToolAccess } from '@/server/auth/guards';
+import { requireAdmin } from '@/server/auth/guards';
 import { listAccessibleClients } from '@/server/policies/client-access.policy';
 import { listPaymentProfiles, listProjects } from '@/server/services/projects/projects.service';
 import { getTodayKey } from '@/server/time-zone';
@@ -18,12 +17,12 @@ export const metadata: Metadata = { title: 'New invoice' };
 const DEFAULT_PAYMENT_DAYS = 14;
 
 async function NewInvoiceContent({ searchParams }: PageProps<'/tools/projects/invoices/new'>) {
-  const actor = await requireToolAccess(ToolId.PROJECTS);
+  const actor = await requireAdmin();
   const [params, today, clients, projects, profiles] = await Promise.all([
     searchParams,
     getTodayKey(),
     listAccessibleClients(actor, { includeArchived: true }),
-    listProjects(),
+    listProjects(actor),
     listPaymentProfiles(),
   ]);
 

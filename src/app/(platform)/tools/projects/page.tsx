@@ -15,8 +15,8 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { ToolId } from '@/config/tools';
-import { ProjectStatus } from '@/generated/prisma/enums';
+import { ToolId, canUseTool } from '@/config/tools';
+import { ProjectStatus, Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { PROJECT_STATUS_LABELS } from '@/lib/projects/labels';
 import { ROUTES } from '@/lib/routes';
 import { formatDuration } from '@/lib/time-tracking/duration';
@@ -42,10 +42,14 @@ function ProjectCard({
   project,
   clients,
   index,
+  canEdit,
+  canInvoice,
 }: {
   project: ProjectView;
   clients: { id: string; name: string }[];
   index: number;
+  canEdit: boolean;
+  canInvoice: boolean;
 }) {
   return (
     <li
@@ -74,24 +78,28 @@ function ProjectCard({
             ? 'Not invoiced yet'
             : `${project.invoiceCount} invoice${project.invoiceCount === 1 ? '' : 's'}`}
         </span>
-        <div className="flex gap-2">
-          <ProjectDialog
-            clients={clients}
-            project={project}
-            trigger={
-              <Button variant="ghost" size="sm">
-                <Pencil />
-                Edit
+        {canEdit && (
+          <div className="flex gap-2">
+            <ProjectDialog
+              clients={clients}
+              project={project}
+              trigger={
+                <Button variant="ghost" size="sm">
+                  <Pencil />
+                  Edit
+                </Button>
+              }
+            />
+            {canInvoice && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`${ROUTES.TOOLS.PROJECTS.NEW_INVOICE}?projectId=${project.id}`}>
+                  <FileText />
+                  Invoice it
+                </Link>
               </Button>
-            }
-          />
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`${ROUTES.TOOLS.PROJECTS.NEW_INVOICE}?projectId=${project.id}`}>
-              <FileText />
-              Invoice it
-            </Link>
-          </Button>
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </li>
   );
@@ -100,17 +108,19 @@ function ProjectCard({
 async function ProjectsContent() {
   const actor = await requireToolAccess(ToolId.PROJECTS);
   const [projects, clients] = await Promise.all([
-    listProjects(),
+    listProjects(actor),
     listAccessibleClients(actor, { includeArchived: true }),
   ]);
   const clientOptions = clients.map(({ id, name }) => ({ id, name }));
+  const canEdit = canUseTool(actor, ToolId.PROJECTS, ToolAccessLevel.EDIT);
+  const canInvoice = actor.role === Role.ADMIN;
 
   return (
     <>
       <PageHeader
         title="Projects"
         description="One-off work like an MVP: what it really took, what the client is billed, and its invoices."
-        actions={<ProjectDialog clients={clientOptions} />}
+        actions={canEdit ? <ProjectDialog clients={clientOptions} /> : undefined}
       />
       {projects.length === 0 ? (
         <Empty className="bg-card/60 rounded-2xl border border-dashed py-16">
@@ -127,7 +137,14 @@ async function ProjectsContent() {
       ) : (
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {projects.map((project, index) => (
-            <ProjectCard key={project.id} project={project} clients={clientOptions} index={index} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              clients={clientOptions}
+              index={index}
+              canEdit={canEdit}
+              canInvoice={canInvoice}
+            />
           ))}
         </ul>
       )}

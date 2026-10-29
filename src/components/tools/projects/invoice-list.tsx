@@ -32,7 +32,7 @@ function isInvoiceStatus(value: string): value is InvoiceStatus {
   return (Object.values(InvoiceStatus) as string[]).includes(value);
 }
 
-function InvoiceRow({ invoice }: { invoice: InvoiceView }) {
+function InvoiceRow({ invoice, canEdit }: { invoice: InvoiceView; canEdit: boolean }) {
   const [isPending, startTransition] = useTransition();
 
   function changeStatus(status: InvoiceStatus) {
@@ -62,7 +62,7 @@ function InvoiceRow({ invoice }: { invoice: InvoiceView }) {
       <Select
         value={invoice.status}
         onValueChange={(value) => isInvoiceStatus(value) && changeStatus(value)}
-        disabled={isPending}
+        disabled={isPending || !canEdit}
       >
         <SelectTrigger
           size="sm"
@@ -89,11 +89,11 @@ function InvoiceRow({ invoice }: { invoice: InvoiceView }) {
   );
 }
 
-export function InvoiceList({ invoices }: { invoices: InvoiceView[] }) {
+export function InvoiceList({ invoices, canEdit }: { invoices: InvoiceView[]; canEdit: boolean }) {
   return (
     <ul className="bg-card divide-y overflow-hidden rounded-2xl border">
       {invoices.map((invoice) => (
-        <InvoiceRow key={invoice.id} invoice={invoice} />
+        <InvoiceRow key={invoice.id} invoice={invoice} canEdit={canEdit} />
       ))}
     </ul>
   );

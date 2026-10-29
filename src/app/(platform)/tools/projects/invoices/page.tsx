@@ -13,16 +13,15 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/components/ui/empty';
-import { ToolId } from '@/config/tools';
 import { ROUTES } from '@/lib/routes';
-import { requireToolAccess } from '@/server/auth/guards';
+import { requireAdmin } from '@/server/auth/guards';
 import { listInvoices } from '@/server/services/projects/projects.service';
 
 export const metadata: Metadata = { title: 'Invoices' };
 
 async function InvoicesContent() {
-  await requireToolAccess(ToolId.PROJECTS);
-  const invoices = await listInvoices();
+  const actor = await requireAdmin();
+  const invoices = await listInvoices(actor);
   return invoices.length === 0 ? (
     <Empty className="bg-card/60 rounded-2xl border border-dashed py-16">
       <EmptyHeader>
@@ -36,7 +35,7 @@ async function InvoicesContent() {
       </EmptyHeader>
     </Empty>
   ) : (
-    <InvoiceList invoices={invoices} />
+    <InvoiceList invoices={invoices} canEdit />
   );
 }
 

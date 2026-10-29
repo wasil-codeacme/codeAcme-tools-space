@@ -32,7 +32,7 @@ export async function GET(
   }
 
   try {
-    const invoice = await getInvoice(parsed.data);
+    const invoice = await getInvoice(actor, parsed.data);
     const pdf = await renderInvoicePdf(invoice);
     return new Response(new Uint8Array(pdf), {
       headers: {

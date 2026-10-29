@@ -6,10 +6,12 @@ import {
   createPaymentProfile,
   createProject,
   getInvoice,
+  listInvoices,
+  listProjects,
   updatePaymentProfile,
 } from '@/server/services/projects/projects.service';
 import { projectFieldsSchema } from '@/server/validators/projects/projects.schema';
-import { asActor, createTestClient, createTestUser } from '@/test/factories';
+import { asActor, assignToClient, createTestClient, createTestUser } from '@/test/factories';
 
 async function setUp() {
   const [admin, client] = await Promise.all([createTestUser(Role.ADMIN), createTestClient()]);
@@ -86,7 +88,7 @@ describe('projects and invoices', () => {
       isFavorite: true,
     });
 
-    const invoice = await getInvoice(created.id);
+    const invoice = await getInvoice(actor, created.id);
     expect(invoice.totalCents).toBe(90_000);
     expect(invoice.paymentDetails).toBe('Account holder: CodeAcme LLC');
     expect(invoice.paymentLink).toBe('https://wise.com/pay/codeacme');
@@ -106,5 +108,26 @@ describe('projects and invoices', () => {
     await expect(
       createInvoice(actor, invoiceFor(client.id, profile.id, project.id)),
     ).rejects.toBeInstanceOf(NotFoundError);
+  });
+
+  it("shows members only their own clients' projects and invoices", async () => {
+    const { actor, client, profile } = await setUp();
+    const [member, otherClient] = await Promise.all([createTestUser(), createTestClient()]);
+    await assignToClient(client.id, member.id);
+    const project = {
+      description: null,
+      status: 'ACTIVE' as const,
+      actualHours: null,
+      billedHours: 5,
+    };
+    await createProject(actor, { ...project, clientId: client.id, name: 'Theirs' });
+    await createProject(actor, { ...project, clientId: otherClient.id, name: 'Not theirs' });
+    await createInvoice(actor, invoiceFor(client.id, profile.id));
+    const hidden = await createInvoice(actor, invoiceFor(otherClient.id, profile.id));
+
+    const memberActor = asActor(member);
+    expect((await listProjects(memberActor)).map((item) => item.name)).toEqual(['Theirs']);
+    expect((await listInvoices(memberActor)).map((item) => item.clientId)).toEqual([client.id]);
+    await expect(getInvoice(memberActor, hidden.id)).rejects.toBeInstanceOf(NotFoundError);
   });
 });

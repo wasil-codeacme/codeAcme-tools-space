@@ -30,6 +30,8 @@ const LEVEL_HINTS: Record<string, string> = {
   'time-tracking': 'View sees the hours; Edit can log and change their own time.',
   accounts: 'View sees what exists and where it lives; Edit can reveal, add and change secrets.',
   'work-timer': 'Edit can run the timer and save sessions.',
+  projects:
+    'Only their clients. View sees projects; Edit can add and update them. Invoices stay admin-only.',
 };
 
 const SELECTED_TOGGLE = 'data-[state=on]:bg-primary data-[state=on]:text-primary-foreground';

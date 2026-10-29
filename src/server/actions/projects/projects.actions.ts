@@ -14,7 +14,9 @@ import {
   updateProjectSchema,
 } from '@/server/validators/projects/projects.schema';
 
-const PROJECTS = { tool: ToolId.PROJECTS, requireAdmin: true } as const;
+const PROJECTS = { tool: ToolId.PROJECTS } as const;
+// Invoices and payment details are CodeAcme's billing, so only admins handle them.
+const BILLING = { tool: ToolId.PROJECTS, requireAdmin: true } as const;
 
 export const createProject = writeAction({
   ...PROJECTS,
@@ -33,7 +35,7 @@ export const updateProject = writeAction({
 });
 
 export const createPaymentProfile = writeAction({
-  ...PROJECTS,
+  ...BILLING,
   input: paymentProfileFieldsSchema,
   fallback: MESSAGES.PAYMENT_PROFILE.SAVE_ERROR,
   logMessage: 'Create payment details failed',
@@ -41,7 +43,7 @@ export const createPaymentProfile = writeAction({
 });
 
 export const updatePaymentProfile = writeAction({
-  ...PROJECTS,
+  ...BILLING,
   input: updatePaymentProfileSchema,
   fallback: MESSAGES.PAYMENT_PROFILE.SAVE_ERROR,
   logMessage: 'Update payment details failed',
@@ -49,7 +51,7 @@ export const updatePaymentProfile = writeAction({
 });
 
 export const deletePaymentProfile = writeAction({
-  ...PROJECTS,
+  ...BILLING,
   input: idOnlySchema,
   fallback: MESSAGES.PAYMENT_PROFILE.DELETE_ERROR,
   logMessage: 'Delete payment details failed',
@@ -57,7 +59,7 @@ export const deletePaymentProfile = writeAction({
 });
 
 export const createInvoice = writeAction({
-  ...PROJECTS,
+  ...BILLING,
   input: createInvoiceSchema,
   fallback: MESSAGES.INVOICE.CREATE_ERROR,
   logMessage: 'Create invoice failed',
@@ -68,9 +70,9 @@ export const createInvoice = writeAction({
 });
 
 export const setInvoiceStatus = writeAction({
-  ...PROJECTS,
+  ...BILLING,
   input: setInvoiceStatusSchema,
   fallback: MESSAGES.INVOICE.STATUS_ERROR,
   logMessage: 'Update invoice status failed',
-  run: (input) => projectsService.setInvoiceStatus(input),
+  run: (input, actor) => projectsService.setInvoiceStatus(actor, input),
 });

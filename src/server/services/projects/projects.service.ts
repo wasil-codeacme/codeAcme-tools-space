@@ -3,7 +3,11 @@ import { logger } from '@/lib/logger';
 import { dollarsToCents } from '@/lib/projects/invoice-math';
 import { hoursToMinutes } from '@/lib/time-tracking/duration';
 import { NotFoundError, ProjectNameTakenError } from '@/server/errors';
-import { assertClientAccess } from '@/server/policies/client-access.policy';
+import {
+  assertClientAccess,
+  isAdmin,
+  listAccessibleClients,
+} from '@/server/policies/client-access.policy';
 import { invoiceRepository } from '@/server/repositories/projects/invoice.repository';
 import { paymentProfileRepository } from '@/server/repositories/projects/payment-profile.repository';
 import { projectRepository } from '@/server/repositories/projects/project.repository';
@@ -20,23 +24,41 @@ import type {
 
 const INVOICE_CURRENCY = 'USD';
 
-export function listProjects(): Promise<ProjectView[]> {
-  return projectRepository.list();
+// Members only see work for the clients they are assigned to; admins see everything.
+async function visibleClientIds(actor: Actor): Promise<Set<string> | null> {
+  if (isAdmin(actor)) {
+    return null;
+  }
+  const clients = await listAccessibleClients(actor, { includeArchived: true });
+  return new Set(clients.map((client) => client.id));
+}
+
+export async function listProjects(actor: Actor): Promise<ProjectView[]> {
+  const [projects, clientIds] = await Promise.all([
+    projectRepository.list(),
+    visibleClientIds(actor),
+  ]);
+  return clientIds ? projects.filter((project) => clientIds.has(project.clientId)) : projects;
 }
 
 export function listPaymentProfiles(): Promise<PaymentProfileView[]> {
   return paymentProfileRepository.list();
 }
 
-export function listInvoices(): Promise<InvoiceView[]> {
-  return invoiceRepository.list();
+export async function listInvoices(actor: Actor): Promise<InvoiceView[]> {
+  const [invoices, clientIds] = await Promise.all([
+    invoiceRepository.list(),
+    visibleClientIds(actor),
+  ]);
+  return clientIds ? invoices.filter((invoice) => clientIds.has(invoice.clientId)) : invoices;
 }
 
-export async function getInvoice(invoiceId: string): Promise<InvoiceView> {
+export async function getInvoice(actor: Actor, invoiceId: string): Promise<InvoiceView> {
   const invoice = await invoiceRepository.findById(invoiceId);
   if (!invoice) {
     throw new NotFoundError('Invoice');
   }
+  await assertClientAccess(actor, invoice.clientId, { allowArchived: true });
   return invoice;
 }
 
@@ -64,9 +86,12 @@ export async function createProject(actor: Actor, input: ProjectFieldsInput) {
 }
 
 export async function updateProject(actor: Actor, { projectId, ...input }: UpdateProjectInput) {
-  if (!(await projectRepository.findById(projectId))) {
+  const existing = await projectRepository.findById(projectId);
+  if (!existing) {
     throw new NotFoundError('Project');
   }
+  // The member must be able to see both the client it belongs to now and the one it moves to.
+  await assertClientAccess(actor, existing.clientId, { allowArchived: true });
   await assertClientAccess(actor, input.clientId, { allowArchived: true });
   await assertNameFree(input.clientId, input.name, projectId);
   return projectRepository.update(projectId, projectData(input));
@@ -131,7 +156,7 @@ export async function createInvoice(actor: Actor, input: CreateInvoiceInput) {
   return invoice;
 }
 
-export async function setInvoiceStatus({ invoiceId, status }: SetInvoiceStatusInput) {
-  await getInvoice(invoiceId);
+export async function setInvoiceStatus(actor: Actor, { invoiceId, status }: SetInvoiceStatusInput) {
+  await getInvoice(actor, invoiceId);
   return invoiceRepository.setStatus(invoiceId, status);
 }
