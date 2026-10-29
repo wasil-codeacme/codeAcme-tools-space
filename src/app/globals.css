@@ -278,7 +278,7 @@
     :is(button, [role='button'], [role='option'], [role='menuitem']):is(
       :disabled,
       [aria-disabled='true'],
-      [data-disabled]
+      [data-disabled]:not([data-disabled='false'])
     ) {
     cursor: not-allowed;
   }

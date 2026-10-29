@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import type { ComponentType, SVGProps } from 'react';
 import type { Role } from '@/generated/prisma/enums';
 
 export interface ToolNavItem {
@@ -11,7 +11,7 @@ export interface ToolDefinition {
   id: string;
   name: string;
   description: string;
-  icon: LucideIcon;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
   href: string;
   roles: readonly Role[];
   // Tabs rendered inside the tool's own layout; the platform sidebar only links to `href`.

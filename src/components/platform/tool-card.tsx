@@ -23,10 +23,6 @@ export function ToolCard({ href, name, description, icon, order }: ToolCardProps
       style={staggerStyle(order)}
       className="group ca-glow bg-card hover:border-primary/30 focus-visible:ring-ring/50 motion-safe:animate-in motion-safe:fill-mode-both motion-safe:fade-in motion-safe:slide-in-from-bottom-2 relative flex min-h-48 flex-col justify-between overflow-hidden rounded-2xl border p-5 shadow-[0_1px_0_0_var(--border)] transition-[transform,box-shadow,border-color] duration-300 ease-(--ease-out-quint) outline-none hover:-translate-y-0.5 hover:shadow-[0_12px_32px_-12px_color-mix(in_oklch,var(--primary)_35%,transparent)] focus-visible:ring-3 motion-safe:duration-500"
     >
-      <div
-        aria-hidden
-        className="bg-primary/0 group-hover:bg-primary/10 pointer-events-none absolute -top-16 -right-16 size-40 rounded-full blur-2xl transition-colors duration-500"
-      />
       <div className="flex items-start justify-between">
         <span className="bg-accent text-accent-foreground ring-primary/10 flex size-11 items-center justify-center rounded-xl ring-1">
           {icon}

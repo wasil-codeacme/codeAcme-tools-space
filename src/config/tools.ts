@@ -1,4 +1,9 @@
-import { BriefcaseBusiness, Clock3, KeyRound, Timer } from 'lucide-react';
+import {
+  AccountsIcon,
+  ProjectsIcon,
+  TimeTrackingIcon,
+  WorkTimerIcon,
+} from '@/components/platform/tool-icons';
 import { Role, ToolAccessLevel } from '@/generated/prisma/enums';
 import { ROUTES } from '@/lib/routes';
 import type { ToolDefinition } from '@/types/tool';
@@ -19,7 +24,7 @@ export const TOOLS = [
     name: 'Time Tracking',
     description:
       'Log hours per client, watch monthly retainer limits and export weekly, bi-weekly or monthly reports.',
-    icon: Clock3,
+    icon: TimeTrackingIcon,
     href: ROUTES.TOOLS.TIME_TRACKING.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],
     navigation: [
@@ -34,7 +39,7 @@ export const TOOLS = [
     name: 'Accounts & Secrets',
     description:
       'What we hold for CodeAcme and each client, and where it lives: links, logins, access levels, optional encrypted passwords and an audit trail.',
-    icon: KeyRound,
+    icon: AccountsIcon,
     href: ROUTES.TOOLS.ACCOUNTS.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],
     navigation: [
@@ -47,7 +52,7 @@ export const TOOLS = [
     name: 'Work Timer',
     description:
       'Press start when you begin and stop when you finish. Keeps a history with daily, weekly and monthly totals.',
-    icon: Timer,
+    icon: WorkTimerIcon,
     href: ROUTES.TOOLS.WORK_TIMER.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],
     navigation: [{ label: 'Timer', href: ROUTES.TOOLS.WORK_TIMER.ROOT }],
@@ -57,7 +62,7 @@ export const TOOLS = [
     name: 'Projects & Invoices',
     description:
       'Track one-off projects like an MVP with the hours they took and the hours billed, then invoice them.',
-    icon: BriefcaseBusiness,
+    icon: ProjectsIcon,
     href: ROUTES.TOOLS.PROJECTS.ROOT,
     roles: [Role.ADMIN, Role.MEMBER],
     navigation: [
