@@ -308,7 +308,7 @@
     z-index: -1;
     background: radial-gradient(
       420px circle at var(--glow-x, -999px) var(--glow-y, -999px),
-      color-mix(in oklab, var(--primary) 7%, transparent),
+      color-mix(in oklab, var(--primary) 4%, transparent),
       transparent 45%
     );
   }
@@ -317,7 +317,7 @@
     padding: 1px;
     background: radial-gradient(
       260px circle at var(--glow-x, -999px) var(--glow-y, -999px),
-      color-mix(in oklab, var(--primary) 55%, transparent),
+      color-mix(in oklab, var(--primary) 30%, transparent),
       transparent 50%
     );
     mask:
