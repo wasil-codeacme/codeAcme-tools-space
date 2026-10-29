@@ -1,6 +1,7 @@
 import { type ReactNode, Suspense, ViewTransition } from 'react';
 import { AppSidebar, AppSidebarSkeleton } from '@/components/platform/app-sidebar';
 import { HeaderTimerChip } from '@/components/platform/header-timer-chip';
+import { TimerPopOutHost } from '@/components/platform/timer-pop-out';
 import { MobileTabBar } from '@/components/platform/mobile-tab-bar';
 import { NavigationProgress } from '@/components/platform/navigation-progress';
 import { PendingNavigationProvider } from '@/components/platform/pending-navigation';
@@ -28,7 +29,10 @@ async function SignedInSidebar() {
 async function SignedInTimerChip() {
   const user = await requireUser();
   return canUseTool(user, ToolId.WORK_TIMER, ToolAccessLevel.EDIT) ? (
-    <HeaderTimerChip userId={user.id} />
+    <>
+      <HeaderTimerChip userId={user.id} />
+      <TimerPopOutHost userId={user.id} />
+    </>
   ) : null;
 }
 

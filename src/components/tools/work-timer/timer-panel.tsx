@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Building2, Pause, Play, Square, TriangleAlert } from 'lucide-react';
+import { Building2, Pause, PictureInPicture2, Play, Square, TriangleAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { openTimerPopOut } from '@/components/platform/timer-pop-out';
 import { useWorkTimer } from '@/hooks/use-work-timer';
 import { DAILY_GOAL_MINUTES, LONG_SESSION_WARNING_MINUTES } from '@/lib/constants';
 import { formatElapsed } from '@/lib/work-timer/format-elapsed';
@@ -206,7 +207,19 @@ export function TimerPanel({
               Stop
             </Button>
           </div>
-        ) : (
+        ) : null}
+        {timer && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={openTimerPopOut}
+            className="text-muted-foreground -mt-2 rounded-full"
+          >
+            <PictureInPicture2 />
+            Pop out timer
+          </Button>
+        )}
+        {timer ? null : (
           <div className="flex w-full flex-col gap-2">
             <div className="flex flex-col gap-2 sm:flex-row">
               <Select value={clientId} onValueChange={setClientId}>

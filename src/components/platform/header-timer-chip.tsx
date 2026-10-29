@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Pause, Play, Square } from 'lucide-react';
+import { TimerPopOutButton } from '@/components/platform/timer-pop-out';
 import { useWorkTimer } from '@/hooks/use-work-timer';
 import { ROUTES } from '@/lib/routes';
 import { formatElapsed } from '@/lib/work-timer/format-elapsed';
@@ -53,6 +54,7 @@ export function HeaderTimerChip({ userId }: { userId: string }) {
           <Pause className="size-3.5 fill-current" />
         )}
       </button>
+      <TimerPopOutButton className="bg-current/15 hover:bg-current/25" />
       <button
         type="button"
         onClick={() => void stop()}
