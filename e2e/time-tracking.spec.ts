@@ -89,7 +89,7 @@ test('the monthly report previews and exports as PDF and CSV', async () => {
 
   await page.getByRole('button', { name: 'Download report' }).click();
   await page.getByRole('radio', { name: 'One week' }).click();
-  await page.getByLabel('Prepared by').fill('Muhammad Ahmed Fraz');
+  await page.getByRole('dialog').getByLabel('Prepared by').fill('Muhammad Ahmed Fraz');
   const [download] = await Promise.all([
     page.waitForEvent('download'),
     page.getByRole('link', { name: 'Download PDF' }).click(),
@@ -97,4 +97,13 @@ test('the monthly report previews and exports as PDF and CSV', async () => {
   expect(download.url()).toContain('period=RANGE');
   expect(download.url()).toContain('preparedBy=Muhammad+Ahmed+Fraz');
   expect(download.suggestedFilename()).toMatch(/\.pdf$/);
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog')).toBeHidden();
+  const pagePreparedBy = page.getByLabel('Prepared by');
+  await pagePreparedBy.fill('Wasil');
+  await pagePreparedBy.press('Enter');
+  await expect(page).toHaveURL(/preparedBy=Wasil/);
+  await page.getByRole('button', { name: 'Download report' }).click();
+  await expect(page.getByRole('dialog').getByLabel('Prepared by')).toHaveValue('Wasil');
 });

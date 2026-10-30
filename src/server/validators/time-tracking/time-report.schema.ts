@@ -30,6 +30,8 @@ const reportQueryFields = z.object({
   // End day of a custom range; ignored by the fixed periods.
   to: dateKeySchema.optional(),
   branding: z.enum([ReportBranding.CODEACME, ReportBranding.NONE]).default(ReportBranding.CODEACME),
+  // The person named on the report, e.g. "Muhammad Ahmed Fraz"; empty names nobody.
+  preparedBy: z.string().trim().max(MAX_PREPARED_BY_LENGTH).optional(),
 });
 
 function isValidRange(query: { period: ReportPeriod; date: string; to?: string }): boolean {
@@ -54,8 +56,6 @@ export const reportQuerySchema = reportQueryFields.refine(isValidRange, RANGE_ER
 export const reportExportQuerySchema = reportQueryFields
   .extend({
     format: z.enum([ReportFormat.PDF, ReportFormat.CSV]),
-    // The person named on the report, e.g. "Muhammad Ahmed Fraz"; defaults to nobody named.
-    preparedBy: z.string().trim().max(MAX_PREPARED_BY_LENGTH).optional(),
     // "1" shows the file in the browser (the in-app preview) instead of downloading it.
     inline: z.literal('1').optional(),
   })

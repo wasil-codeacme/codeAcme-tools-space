@@ -5,6 +5,7 @@ import { Building2, CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react
 import { ReportDownloadDialog } from '@/components/tools/time-tracking/reports/report-download-dialog';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
@@ -15,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useSearchParamNavigation } from '@/hooks/use-search-param-navigation';
+import { MAX_PREPARED_BY_LENGTH } from '@/lib/constants';
 import { type DateKey, fromDateKey } from '@/lib/time-tracking/date-key';
 import {
   REPORT_PERIOD_LABELS,
@@ -31,7 +33,8 @@ interface ReportFiltersProps {
   query: ReportQuery;
   periodLabel: string;
   today: DateKey;
-  defaultPreparedBy: string;
+  preparedBy: string;
+  profileName: string;
 }
 
 const PERIODS = [ReportPeriod.WEEK, ReportPeriod.TWO_WEEKS, ReportPeriod.MONTH] as const;
@@ -47,7 +50,8 @@ export function ReportFilters({
   query,
   periodLabel,
   today,
-  defaultPreparedBy,
+  preparedBy,
+  profileName,
 }: ReportFiltersProps) {
   const { navigate } = useSearchParamNavigation();
   const selectedDate = fromDateKey(query.date);
@@ -57,6 +61,14 @@ export function ReportFilters({
     selectedDate.getMonth(),
     selectedDate.getDate(),
   );
+
+  // A blank box, or the profile name itself, keeps the URL clean and uses the profile name.
+  function commitPreparedBy(value: string) {
+    const name = value.trim();
+    if (name !== preparedBy) {
+      navigate({ preparedBy: name && name !== profileName ? name : null });
+    }
+  }
 
   return (
     <div className="ca-glow bg-card space-y-3 rounded-2xl border p-4">
@@ -139,14 +151,25 @@ export function ReportFilters({
             Unbranded
           </ToggleGroupItem>
         </ToggleGroup>
+        <label className="flex min-w-56 flex-1 items-center gap-2 text-sm sm:max-w-sm">
+          <span className="text-muted-foreground whitespace-nowrap">Prepared by</span>
+          <Input
+            key={preparedBy}
+            defaultValue={preparedBy}
+            placeholder={profileName}
+            maxLength={MAX_PREPARED_BY_LENGTH}
+            onBlur={(event) => commitPreparedBy(event.target.value)}
+            onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()}
+          />
+        </label>
         <ReportDownloadDialog
-          key={`${query.clientId}:${query.period}:${query.date}:${query.to ?? ''}`}
+          key={`${query.clientId}:${query.period}:${query.date}:${query.to ?? ''}:${preparedBy}`}
           clientId={query.clientId}
           clientName={clients.find((client) => client.id === query.clientId)?.name ?? 'client'}
           today={today}
           shown={{ period: query.period, date: query.date, to: query.to, label: periodLabel }}
           branding={query.branding}
-          defaultPreparedBy={defaultPreparedBy}
+          defaultPreparedBy={preparedBy}
         />
       </div>
     </div>

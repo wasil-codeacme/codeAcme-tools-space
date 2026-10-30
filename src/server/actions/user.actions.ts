@@ -9,6 +9,7 @@ import {
   resetUserPasswordSchema,
   setToolAccessSchema,
   setUserActiveSchema,
+  updateOwnNameSchema,
   updateUserSchema,
 } from '@/server/validators/user.schema';
 
@@ -42,6 +43,16 @@ export const resetUserPassword = writeAction({
   fallback: MESSAGES.USER.UPDATE_ERROR,
   logMessage: 'Reset team member password failed',
   run: (input, actor) => userService.resetUserPassword(actor, input),
+});
+
+export const updateOwnName = writeAction({
+  input: updateOwnNameSchema,
+  fallback: MESSAGES.USER.NAME_UPDATE_ERROR,
+  logMessage: 'Update own name failed',
+  run: async (input, actor) => {
+    const { name } = await userService.updateOwnName(actor, input);
+    return { name };
+  },
 });
 
 export const setToolAccess = writeAction({

@@ -22,6 +22,8 @@ export const MESSAGES = {
     CREATE_SUCCESS: 'Team member added.',
     CREATE_ERROR: 'Could not add the team member.',
     UPDATE_SUCCESS: 'Team member updated.',
+    NAME_UPDATED: 'Name updated.',
+    NAME_UPDATE_ERROR: 'Could not update your name.',
     ACCESS_UPDATED: 'Access updated.',
     ACCESS_ERROR: 'Could not update access.',
     ADMIN_HAS_ALL_TOOLS: 'Admins can use every tool.',

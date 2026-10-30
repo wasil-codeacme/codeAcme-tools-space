@@ -12,6 +12,7 @@ import {
   createUser,
   setToolAccess,
   setUserActive,
+  updateOwnName,
   updateUser,
 } from '@/server/services/user.service';
 import { asActor, createTestUser } from '@/test/factories';
@@ -119,5 +120,14 @@ describe('team management guards', () => {
         level: ToolAccessLevel.VIEW,
       }),
     ).rejects.toBeInstanceOf(AdminHasAllToolsError);
+  });
+
+  it("lets people change their own name and nobody else's", async () => {
+    const [member, other] = await Promise.all([createTestUser(), createTestUser()]);
+    await updateOwnName(asActor(member), { name: 'Wasil' });
+
+    const stored = await prisma.user.findMany({ where: { id: { in: [member.id, other.id] } } });
+    expect(stored.find((user) => user.id === member.id)?.name).toBe('Wasil');
+    expect(stored.find((user) => user.id === other.id)?.name).toBe(other.name);
   });
 });

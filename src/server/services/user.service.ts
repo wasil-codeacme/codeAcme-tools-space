@@ -21,6 +21,7 @@ import type {
   ResetUserPasswordInput,
   SetToolAccessInput,
   SetUserActiveInput,
+  UpdateOwnNameInput,
   UpdateUserInput,
 } from '@/server/validators/user.schema';
 import { NO_TOOL_ACCESS } from '@/server/validators/user.schema';
@@ -83,6 +84,13 @@ export async function updateUser(actor: Actor, { userId, name, role }: UpdateUse
   await assertNotRemovingLastAdmin(userId, isDemotion);
   const user = await userRepository.update(userId, { name, role });
   logger.info({ userId, role, actorId: actor.id }, 'Team member updated');
+  return user;
+}
+
+// Everyone can fix their own name; it is what reports show as "Prepared by" by default.
+export async function updateOwnName(actor: Actor, { name }: UpdateOwnNameInput) {
+  const user = await userRepository.update(actor.id, { name });
+  logger.info({ userId: actor.id }, 'Own name updated');
   return user;
 }
 

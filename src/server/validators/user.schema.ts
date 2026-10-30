@@ -21,6 +21,8 @@ export const updateUserSchema = z.object({
   role: roleSchema,
 });
 
+export const updateOwnNameSchema = z.object({ name: nameSchema });
+
 export const setUserActiveSchema = z.object({
   userId: idSchema,
   isActive: z.boolean(),
@@ -44,6 +46,7 @@ export const setToolAccessSchema = z.object({
 
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type UpdateOwnNameInput = z.infer<typeof updateOwnNameSchema>;
 export type SetUserActiveInput = z.infer<typeof setUserActiveSchema>;
 export type ResetUserPasswordInput = z.infer<typeof resetUserPasswordSchema>;
 export type SetToolAccessInput = z.infer<typeof setToolAccessSchema>;

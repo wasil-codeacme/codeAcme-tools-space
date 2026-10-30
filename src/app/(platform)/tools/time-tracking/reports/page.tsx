@@ -65,6 +65,7 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
         branding: ReportBranding.CODEACME,
       };
   const report = await buildTimeReport(actor, query, today);
+  const preparedBy = query.preparedBy || actor.name;
 
   return (
     <div className="space-y-5">
@@ -73,11 +74,12 @@ async function ReportsContent({ searchParams }: { searchParams: SearchParams }) 
         query={query}
         periodLabel={report.period.label}
         today={today}
-        defaultPreparedBy={actor.name}
+        preparedBy={preparedBy}
+        profileName={actor.name}
       />
       <PendingSection fallback={<ReportPreviewSkeleton />}>
         <ReportPdfPreview
-          pdfHref={previewHref(query, actor.name)}
+          pdfHref={previewHref(query, preparedBy)}
           title={`${report.client.name} time report · ${report.period.label}`}
           needsReviewCount={report.needsReviewCount}
         />

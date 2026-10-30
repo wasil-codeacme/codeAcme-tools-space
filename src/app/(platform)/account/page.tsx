@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ChangePasswordForm } from '@/components/platform/change-password-form';
 import { PageHeader } from '@/components/platform/page-header';
+import { ProfileNameForm } from '@/components/platform/profile-name-form';
 import { SettingsSection } from '@/components/platform/settings-section';
 import { ListPageSkeleton } from '@/components/platform/skeletons';
 import { ROLE_LABELS } from '@/components/platform/team/role-select';
@@ -17,13 +18,10 @@ async function AccountContent() {
       <div className="space-y-5">
         <SettingsSection
           title="Profile"
-          description="Ask an admin if your name or email needs to change."
+          description="Your name also appears as Prepared by on reports. Ask an admin if your email needs to change."
         >
-          <dl className="grid gap-3 text-sm sm:grid-cols-3">
-            <div>
-              <dt className="text-muted-foreground">Name</dt>
-              <dd className="font-medium">{user.name}</dd>
-            </div>
+          <ProfileNameForm name={user.name} />
+          <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground">Email</dt>
               <dd className="font-medium">{user.email}</dd>
